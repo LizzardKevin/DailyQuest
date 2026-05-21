@@ -45,16 +45,16 @@ struct LocalDailyPlanRepository: DailyPlanRepository {
     }
 
     /// Upsert by calendar day — replaces existing plan for the same date if present.
-    func save(_ plan: DailyPlan, context: ModelContext) throws {
-        let day = DateHelpers.startOfDay(plan.date)
-        plan.date = day
-        plan.updatedAt = .now
+    func save(_ newPlan: DailyPlan, context: ModelContext) throws {
+        let day = DateHelpers.startOfDay(newPlan.date)
+        newPlan.date = day
+        newPlan.updatedAt = .now
 
-        if let existing = try plan(for: day, in: context), existing !== plan {
+        if let existing = try plan(for: day, in: context), existing !== newPlan {
             context.delete(existing)
         }
 
-        context.insert(plan)
+        context.insert(newPlan)
         try context.save()
     }
 
