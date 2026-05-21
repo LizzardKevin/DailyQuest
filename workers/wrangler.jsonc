@@ -1,0 +1,9 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "daily-intent-api",
+  "main": "src/index.ts",
+  "compatibility_date": "2025-05-20",
+  "vars": {
+    "MAX_REQUESTS_PER_DAY": "3"
+  }
+}

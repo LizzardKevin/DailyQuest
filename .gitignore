@@ -1,0 +1,16 @@
+# Xcode
+build/
+DerivedData/
+*.xcuserstate
+xcuserdata/
+*.xccheckout
+
+# Secrets
+DailyIntent/Config/Config.xcconfig
+*.env
+workers/.dev.vars
+workers/node_modules/
+workers/.wrangler/
+
+# macOS
+.DS_Store

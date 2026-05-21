@@ -1,0 +1,4 @@
+// Copy to Config.xcconfig for local overrides (do not commit secrets)
+
+// Optional: must match Worker secret API_SHARED_SECRET
+// API_SHARED_SECRET = your-shared-secret
