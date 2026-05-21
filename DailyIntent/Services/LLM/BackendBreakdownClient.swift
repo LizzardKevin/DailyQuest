@@ -48,7 +48,8 @@ struct BackendBreakdownClient: TaskBreakdownProviding {
         request.setValue(DeviceIDService.shared.deviceID, forHTTPHeaderField: "X-Device-ID")
         request.setValue(QuestDayCalendar.questDayKey(), forHTTPHeaderField: "X-Quest-Day")
 
-        if let secret = APIConfig.apiSharedSecret, !secret.isEmpty {
+        let secret = APIConfig.apiSharedSecret
+        if !secret.isEmpty {
             request.setValue(secret, forHTTPHeaderField: "X-API-Secret")
         }
 

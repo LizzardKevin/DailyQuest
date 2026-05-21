@@ -119,7 +119,7 @@ struct MedalCalendarView: View {
         }
     }
 
-    private func legendItem(status: DayMedalStatus, label: String) {
+    private func legendItem(status: DayMedalStatus, label: String) -> some View {
         HStack(spacing: 6) {
             MedalBadge(status: status, size: 18)
             Text(label)

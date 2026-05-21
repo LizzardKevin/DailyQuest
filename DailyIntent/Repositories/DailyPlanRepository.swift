@@ -5,6 +5,7 @@ protocol DailyPlanRepository {
     func plan(for date: Date, in context: ModelContext) throws -> DailyPlan?
     func plans(in month: Date, context: ModelContext) throws -> [DailyPlan]
     func medalStatuses(in month: Date, context: ModelContext) throws -> [Date: DayMedalStatus]
+    func hasPlanForCurrentQuestDay(in context: ModelContext) throws -> Bool
     func save(_ plan: DailyPlan, context: ModelContext) throws
     func delete(_ plan: DailyPlan, context: ModelContext) throws
 }
