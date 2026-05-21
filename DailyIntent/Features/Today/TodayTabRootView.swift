@@ -14,10 +14,15 @@ struct TodayTabRootView: View {
                 DawnBackground()
 
                 Group {
-                    if let plan = todayPlan {
+                    if let plan = todayPlan, plan.hasValidQuestContent {
                         TodayBoardView(plan: plan, onPlanUpdated: { reload() })
                     } else {
-                        waitingPlanView
+                        DailyQuestInputView(
+                            title: "今日任务",
+                            subtitle: "写下今日主线与支线，领取任务或由默认阶段开始",
+                            showFlowHints: false,
+                            onCompleted: { reload() }
+                        )
                     }
                 }
             }
@@ -47,23 +52,6 @@ struct TodayTabRootView: View {
                 reload()
             }
         }
-    }
-
-    private var waitingPlanView: some View {
-        VStack(spacing: 20) {
-            Spacer()
-            Image(systemName: "sun.horizon")
-                .font(.system(size: 48, weight: .thin))
-                .foregroundStyle(AppTheme.mainGradient)
-            Text("今日尚未领取任务")
-                .font(AppTheme.title(20))
-                .foregroundStyle(AppTheme.ink)
-            Text("完成「每日」流程后即可在此打卡")
-                .font(AppTheme.body(14))
-                .foregroundStyle(AppTheme.inkMuted)
-            Spacer()
-        }
-        .padding()
     }
 
     private func reload() {

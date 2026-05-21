@@ -42,7 +42,8 @@ struct LocalDailyPlanRepository: DailyPlanRepository {
     }
 
     func hasPlanForCurrentQuestDay(in context: ModelContext) throws -> Bool {
-        try plan(for: .now, in: context) != nil
+        guard let existing = try plan(for: .now, in: context) else { return false }
+        return existing.hasValidQuestContent
     }
 
     /// Upsert by calendar day — replaces existing plan for the same date if present.

@@ -47,4 +47,12 @@ final class DailyPlan {
         let done = items.flatMap(\.stages).filter(\.isDone).count
         return Double(done) / Double(total)
     }
+
+    /// 是否已有可展示、可打卡的任务内容。
+    var hasValidQuestContent: Bool {
+        guard let main = mainTask else { return false }
+        let text = main.rawText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !text.isEmpty, !main.stages.isEmpty else { return false }
+        return true
+    }
 }

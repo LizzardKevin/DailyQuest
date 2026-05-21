@@ -46,6 +46,7 @@
 		B10000000000000000000042 /* DailyTriviaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000042 /* DailyTriviaView.swift */; };
 		B10000000000000000000043 /* QuestIntakeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000043 /* QuestIntakeView.swift */; };
 		B10000000000000000000044 /* DailyFlowPager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000044 /* DailyFlowPager.swift */; };
+		B10000000000000000000048 /* DailyQuestInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000048 /* DailyQuestInputView.swift */; };
 		B10000000000000000000045 /* TutorialContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000045 /* TutorialContent.swift */; };
 		B10000000000000000000046 /* SettingsTodayQuestSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000046 /* SettingsTodayQuestSection.swift */; };
 		B10000000000000000000047 /* on_this_day_fallback.json in Resources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000047 /* on_this_day_fallback.json */; };
@@ -93,6 +94,7 @@
 		F10000000000000000000042 /* DailyTriviaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyTriviaView.swift; sourceTree = "<group>"; };
 		F10000000000000000000043 /* QuestIntakeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuestIntakeView.swift; sourceTree = "<group>"; };
 		F10000000000000000000044 /* DailyFlowPager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyFlowPager.swift; sourceTree = "<group>"; };
+		F10000000000000000000048 /* DailyQuestInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyQuestInputView.swift; sourceTree = "<group>"; };
 		F10000000000000000000045 /* TutorialContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TutorialContent.swift; sourceTree = "<group>"; };
 		F10000000000000000000046 /* SettingsTodayQuestSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsTodayQuestSection.swift; sourceTree = "<group>"; };
 		F10000000000000000000047 /* on_this_day_fallback.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = on_this_day_fallback.json; sourceTree = "<group>"; };
@@ -252,6 +254,7 @@
 				F10000000000000000000042 /* DailyTriviaView.swift */,
 				F10000000000000000000043 /* QuestIntakeView.swift */,
 				F10000000000000000000044 /* DailyFlowPager.swift */,
+				F10000000000000000000048 /* DailyQuestInputView.swift */,
 			);
 			path = Daily;
 			sourceTree = "<group>";
@@ -396,6 +399,7 @@
 				B10000000000000000000042 /* DailyTriviaView.swift in Sources */,
 				B10000000000000000000043 /* QuestIntakeView.swift in Sources */,
 				B10000000000000000000044 /* DailyFlowPager.swift in Sources */,
+				B10000000000000000000048 /* DailyQuestInputView.swift in Sources */,
 				B10000000000000000000045 /* TutorialContent.swift in Sources */,
 				B10000000000000000000046 /* SettingsTodayQuestSection.swift in Sources */,
 			);
