@@ -19,7 +19,6 @@ struct RootView: View {
                         showDailyFlow = false
                         selectedTab = 1
                     }
-                    refreshFlowState()
                 }
                 .transition(.opacity)
             }

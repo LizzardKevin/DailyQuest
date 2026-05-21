@@ -112,12 +112,11 @@ struct QuestIntakeView: View {
                     }
                 }
 
-                if useManualFallback || errorMessage != nil {
-                    SecondaryGlassButton(title: "使用默认阶段") {
-                        Task { await submit(useLLM: false) }
-                    }
-                    .disabled(isLoading)
+                SecondaryGlassButton(title: "使用默认阶段") {
+                    Task { await submit(useLLM: false) }
                 }
+                .disabled(mainText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isLoading)
+                .opacity(useManualFallback || errorMessage != nil ? 1 : 0.85)
             }
             .padding(20)
         }

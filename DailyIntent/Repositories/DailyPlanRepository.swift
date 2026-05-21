@@ -55,6 +55,18 @@ struct LocalDailyPlanRepository: DailyPlanRepository {
             context.delete(existing)
         }
 
+        if let main = newPlan.mainTask {
+            context.insert(main)
+            for stage in main.stages {
+                context.insert(stage)
+            }
+        }
+        for side in newPlan.sideTasks {
+            context.insert(side)
+            for stage in side.stages {
+                context.insert(stage)
+            }
+        }
         context.insert(newPlan)
         try context.save()
     }
