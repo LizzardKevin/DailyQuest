@@ -27,8 +27,6 @@
 		B10000000000000000000019 /* PreviewData.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000019 /* PreviewData.swift */; };
 		B10000000000000000000020 /* TodayTabRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000020 /* TodayTabRootView.swift */; };
 		B10000000000000000000021 /* TodayBoardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000021 /* TodayBoardView.swift */; };
-		B10000000000000000000022 /* MorningIntakeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000022 /* MorningIntakeView.swift */; };
-		B10000000000000000000023 /* OnboardingReminderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000023 /* OnboardingReminderView.swift */; };
 		B10000000000000000000030 /* APIConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000031 /* APIConfig.swift */; };
 		B10000000000000000000031 /* AppTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000032 /* AppTheme.swift */; };
 		B10000000000000000000032 /* BackendBreakdownClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000033 /* BackendBreakdownClient.swift */; };
@@ -75,8 +73,6 @@
 		F10000000000000000000019 /* PreviewData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewData.swift; sourceTree = "<group>"; };
 		F10000000000000000000020 /* TodayTabRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayTabRootView.swift; sourceTree = "<group>"; };
 		F10000000000000000000021 /* TodayBoardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayBoardView.swift; sourceTree = "<group>"; };
-		F10000000000000000000022 /* MorningIntakeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MorningIntakeView.swift; sourceTree = "<group>"; };
-		F10000000000000000000023 /* OnboardingReminderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingReminderView.swift; sourceTree = "<group>"; };
 		F10000000000000000000031 /* APIConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIConfig.swift; sourceTree = "<group>"; };
 		F10000000000000000000032 /* AppTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTheme.swift; sourceTree = "<group>"; };
 		F10000000000000000000033 /* BackendBreakdownClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackendBreakdownClient.swift; sourceTree = "<group>"; };
@@ -382,8 +378,6 @@
 				B10000000000000000000019 /* PreviewData.swift in Sources */,
 				B10000000000000000000020 /* TodayTabRootView.swift in Sources */,
 				B10000000000000000000021 /* TodayBoardView.swift in Sources */,
-				B10000000000000000000022 /* MorningIntakeView.swift in Sources */,
-				B10000000000000000000023 /* OnboardingReminderView.swift in Sources */,
 				B10000000000000000000030 /* APIConfig.swift in Sources */,
 				B10000000000000000000031 /* AppTheme.swift in Sources */,
 				B10000000000000000000032 /* BackendBreakdownClient.swift in Sources */,
