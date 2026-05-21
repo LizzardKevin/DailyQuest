@@ -15,8 +15,13 @@ enum APIConfig {
         return url
     }
 
+    /// 勿用 `appendingPathComponent("v1/breakdown")`，会把 `/` 编码成 `%2F` 导致 404。
     static var breakdownURL: URL {
-        baseURL.appendingPathComponent("v1/breakdown")
+        let root = baseURLString.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
+        guard let url = URL(string: "\(root)/v1/breakdown") else {
+            return baseURL.appending(path: "v1/breakdown")
+        }
+        return url
     }
 
     static var isConfigured: Bool {

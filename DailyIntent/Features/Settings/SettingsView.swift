@@ -122,6 +122,10 @@ struct SettingsView: View {
                                         .font(.system(size: 11, design: .monospaced))
                                         .foregroundStyle(AppTheme.inkMuted)
                                         .lineLimit(2)
+                                    Text("拆解接口：\(APIConfig.breakdownURL.absoluteString)")
+                                        .font(.system(size: 10, design: .monospaced))
+                                        .foregroundStyle(AppTheme.inkMuted)
+                                        .lineLimit(2)
                                 }
                             }
                         }

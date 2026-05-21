@@ -31,13 +31,36 @@ struct BackendBreakdownClient: TaskBreakdownProviding {
                     try await Task.sleep(nanoseconds: UInt64(500_000_000 * (attempt + 1)))
                 }
             } catch {
-                lastError = error
+                lastError = mapNetworkError(error)
                 if attempt < maxRetries {
                     try await Task.sleep(nanoseconds: UInt64(500_000_000 * (attempt + 1)))
                 }
             }
         }
-        throw lastError
+        throw mapNetworkError(lastError)
+    }
+
+    private func mapNetworkError(_ error: Error) -> Error {
+        if let breakdown = error as? BreakdownValidationError {
+            return breakdown
+        }
+        if let urlError = error as? URLError {
+            switch urlError.code {
+            case .notConnectedToInternet:
+                return BreakdownValidationError.apiError("未连接互联网，请检查模拟器/本机网络")
+            case .cannotFindHost, .cannotConnectToHost, .dnsLookupFailed:
+                return BreakdownValidationError.apiError(
+                    "无法连接服务器。请在 Mac 浏览器打开 \(APIConfig.baseURLString)/health 检查；若打不开，需部署自己的 Worker 或检查网络/VPN"
+                )
+            case .timedOut:
+                return BreakdownValidationError.apiError("连接超时，请稍后重试")
+            case .secureConnectionFailed:
+                return BreakdownValidationError.apiError("安全连接失败，请确认 Worker 地址为 https")
+            default:
+                return BreakdownValidationError.apiError("网络错误：\(urlError.localizedDescription)")
+            }
+        }
+        return error
     }
 
     private func request(mainTask: String, sideTasks: [String]) async throws -> TaskBreakdownResponse {
