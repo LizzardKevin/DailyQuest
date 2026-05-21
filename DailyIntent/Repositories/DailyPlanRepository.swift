@@ -3,6 +3,7 @@ import SwiftData
 
 protocol DailyPlanRepository {
     func plan(for date: Date, in context: ModelContext) throws -> DailyPlan?
+    func plan(forCalendarDay date: Date, in context: ModelContext) throws -> DailyPlan?
     func plans(in month: Date, context: ModelContext) throws -> [DailyPlan]
     func medalStatuses(in month: Date, context: ModelContext) throws -> [Date: DayMedalStatus]
     func hasPlanForCurrentQuestDay(in context: ModelContext) throws -> Bool
@@ -13,6 +14,15 @@ protocol DailyPlanRepository {
 struct LocalDailyPlanRepository: DailyPlanRepository {
     func plan(for date: Date, in context: ModelContext) throws -> DailyPlan? {
         let day = DateHelpers.startOfDay(date)
+        return try fetchPlan(on: day, in: context)
+    }
+
+    func plan(forCalendarDay date: Date, in context: ModelContext) throws -> DailyPlan? {
+        let day = DateHelpers.questDayAnchor(forCalendarDay: date)
+        return try fetchPlan(on: day, in: context)
+    }
+
+    private func fetchPlan(on day: Date, in context: ModelContext) throws -> DailyPlan? {
         let descriptor = FetchDescriptor<DailyPlan>(
             predicate: #Predicate { $0.date == day }
         )
@@ -36,7 +46,7 @@ struct LocalDailyPlanRepository: DailyPlanRepository {
         let plans = try plans(in: month, context: context)
         var map: [Date: DayMedalStatus] = [:]
         for plan in plans {
-            map[DateHelpers.startOfDay(plan.date)] = DayMedalStatus.from(plan: plan)
+            map[plan.date] = DayMedalStatus.from(plan: plan)
         }
         return map
     }

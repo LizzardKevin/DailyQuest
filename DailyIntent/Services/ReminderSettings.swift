@@ -12,6 +12,9 @@ enum ReminderSettings {
     static func save(hour: Int, minute: Int) {
         UserDefaults.standard.set(hour, forKey: hourKey)
         UserDefaults.standard.set(minute, forKey: minuteKey)
+    }
+
+    static func markConfigured() {
         UserDefaults.standard.set(true, forKey: configuredKey)
     }
 

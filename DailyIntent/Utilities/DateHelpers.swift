@@ -12,6 +12,17 @@ enum DateHelpers {
         QuestDayCalendar.isSameQuestDay(lhs, rhs)
     }
 
+    /// 日历格子的自然日（通常为 00:00）映射到存储用的任务日锚点。
+    /// 避免在 04:00 换日边界处，午夜时刻被算到前一天任务日。
+    static func questDayAnchor(forCalendarDay date: Date) -> Date {
+        var components = calendar.dateComponents([.year, .month, .day], from: date)
+        components.hour = 12
+        components.minute = 0
+        components.second = 0
+        let midday = calendar.date(from: components) ?? date
+        return QuestDayCalendar.questDayStart(for: midday)
+    }
+
     static func monthInterval(containing date: Date) -> DateInterval? {
         calendar.dateInterval(of: .month, for: date)
     }

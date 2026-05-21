@@ -52,6 +52,8 @@ struct SettingsTodayQuestSection: View {
 
                     if showEditor {
                         PrimaryButton(isLoading ? "正在拆解…" : "保存并重新拆解", icon: "arrow.triangle.2.circlepath") {
+                            guard !isLoading else { return }
+                            isLoading = true
                             Task { await saveModifiedPlan(replacing: plan) }
                         }
                         .disabled(mainText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isLoading)
@@ -123,20 +125,21 @@ struct SettingsTodayQuestSection: View {
         if sideTexts.isEmpty { sideTexts = [] }
     }
 
-    private func saveModifiedPlan(replacing existing: DailyPlan) async {
+    private func saveModifiedPlan(replacing _: DailyPlan) async {
         let trimmedMain = mainText.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmedMain.isEmpty else { return }
+        guard !trimmedMain.isEmpty else {
+            isLoading = false
+            return
+        }
 
         let trimmedSides = sideTexts
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
             .filter { !$0.isEmpty }
 
-        isLoading = true
         message = nil
         defer { isLoading = false }
 
         do {
-            try repository.delete(existing, context: context)
             let breakdown = try await llm.breakdown(mainTask: trimmedMain, sideTasks: trimmedSides)
             let plan = try PlanBuilder.makePlan(
                 date: .now,

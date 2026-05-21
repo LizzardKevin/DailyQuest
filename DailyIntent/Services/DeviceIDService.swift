@@ -5,6 +5,7 @@ final class DeviceIDService {
     static let shared = DeviceIDService()
 
     private let keychainKey = "device_uuid"
+    private let fallbackDefaultsKey = "device_uuid_fallback"
 
     var deviceID: String {
         get {
@@ -12,8 +13,16 @@ final class DeviceIDService {
                !existing.isEmpty {
                 return existing
             }
+            if let fallback = UserDefaults.standard.string(forKey: fallbackDefaultsKey),
+               !fallback.isEmpty {
+                return fallback
+            }
             let newID = UUID().uuidString
-            try? KeychainService.shared.save(newID, account: keychainKey)
+            if (try? KeychainService.shared.save(newID, account: keychainKey)) != nil {
+                UserDefaults.standard.removeObject(forKey: fallbackDefaultsKey)
+            } else {
+                UserDefaults.standard.set(newID, forKey: fallbackDefaultsKey)
+            }
             return newID
         }
     }

@@ -14,7 +14,6 @@ struct DailyQuestInputView: View {
     @State private var sideTexts: [String] = []
     @State private var isLoading = false
     @State private var errorMessage: String?
-    @State private var useManualFallback = false
     @State private var showQuestHint = false
     @State private var reminderTime = ReminderSettings.date
     @State private var showReminderCard = false
@@ -49,6 +48,8 @@ struct DailyQuestInputView: View {
                 }
 
                 PrimaryButton(isLoading ? "正在拆解…" : "领取任务", icon: "flag.fill") {
+                    guard !isLoading else { return }
+                    isLoading = true
                     Task { await submit(useLLM: true) }
                 }
                 .disabled(mainText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isLoading)
@@ -59,6 +60,8 @@ struct DailyQuestInputView: View {
                 }
 
                 SecondaryGlassButton(title: "使用默认阶段") {
+                    guard !isLoading else { return }
+                    isLoading = true
                     Task { await submit(useLLM: false) }
                 }
                 .disabled(mainText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isLoading)
@@ -143,9 +146,10 @@ struct DailyQuestInputView: View {
         let components = Calendar.current.dateComponents([.hour, .minute], from: reminderTime)
         let hour = components.hour ?? 8
         let minute = components.minute ?? 0
-        ReminderSettings.save(hour: hour, minute: minute)
         do {
             try await NotificationService.shared.scheduleDailyReminder(hour: hour, minute: minute)
+            ReminderSettings.save(hour: hour, minute: minute)
+            ReminderSettings.markConfigured()
             LightPromptStore.markSeen(.reminderSetup)
             showReminderCard = false
         } catch {
@@ -155,13 +159,15 @@ struct DailyQuestInputView: View {
 
     private func submit(useLLM: Bool) async {
         let trimmedMain = mainText.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmedMain.isEmpty else { return }
+        guard !trimmedMain.isEmpty else {
+            isLoading = false
+            return
+        }
 
         let trimmedSides = sideTexts
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
             .filter { !$0.isEmpty }
 
-        isLoading = true
         errorMessage = nil
         defer { isLoading = false }
 
@@ -185,7 +191,6 @@ struct DailyQuestInputView: View {
             onCompleted()
         } catch {
             errorMessage = error.localizedDescription
-            useManualFallback = true
         }
     }
 

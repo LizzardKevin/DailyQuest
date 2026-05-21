@@ -128,6 +128,6 @@ struct DayDetailSheet: View {
     }
 
     private func load() {
-        plan = try? repository.plan(for: date, in: context)
+        plan = try? repository.plan(forCalendarDay: date, in: context)
     }
 }

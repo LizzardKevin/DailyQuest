@@ -16,4 +16,11 @@ describe("breakdown request validation", () => {
     const sides = [{ stages: [{ title: "s1" }] }];
     expect(sides.length === sideTasks.length).toBe(false);
   });
+
+  it("accepts yyyy-MM-dd quest day keys", () => {
+    const valid = /^\d{4}-\d{2}-\d{2}$/;
+    expect(valid.test("2026-05-22")).toBe(true);
+    expect(valid.test("2026-5-22")).toBe(false);
+    expect(valid.test("../etc/passwd")).toBe(false);
+  });
 });

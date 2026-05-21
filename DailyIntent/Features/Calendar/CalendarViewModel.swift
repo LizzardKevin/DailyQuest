@@ -45,11 +45,11 @@ final class CalendarViewModel {
     }
 
     func status(for date: Date) -> DayMedalStatus {
-        let day = DateHelpers.startOfDay(date)
+        let day = DateHelpers.questDayAnchor(forCalendarDay: date)
         return statusMap[day] ?? .none
     }
 
     func plan(for date: Date, context: ModelContext) -> DailyPlan? {
-        try? repository.plan(for: date, in: context)
+        try? repository.plan(forCalendarDay: date, in: context)
     }
 }

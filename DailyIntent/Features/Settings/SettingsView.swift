@@ -190,9 +190,10 @@ struct SettingsView: View {
         let components = Calendar.current.dateComponents([.hour, .minute], from: reminderTime)
         let hour = components.hour ?? 8
         let minute = components.minute ?? 0
-        ReminderSettings.save(hour: hour, minute: minute)
         do {
             try await NotificationService.shared.scheduleDailyReminder(hour: hour, minute: minute)
+            ReminderSettings.save(hour: hour, minute: minute)
+            ReminderSettings.markConfigured()
             notificationStatus = await NotificationService.shared.authorizationStatus()
             message = "提醒时间更新成功"
             LightPromptStore.markSeen(.reminderSetup)

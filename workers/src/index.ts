@@ -52,14 +52,66 @@ export default {
   },
 };
 
+function timingSafeEqual(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  let mismatch = 0;
+  for (let i = 0; i < a.length; i++) {
+    mismatch |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  }
+  return mismatch === 0;
+}
+
+function resolveMaxPerDay(raw: string | undefined): number {
+  const parsed = parseInt(raw || "3", 10);
+  if (!Number.isFinite(parsed) || parsed < 1) return 3;
+  return Math.min(parsed, 20);
+}
+
+const QUEST_DAY_RE = /^\d{4}-\d{2}-\d{2}$/;
+
+function normalizeQuestDay(raw: string | undefined): string | null {
+  const day = raw?.trim();
+  if (!day || !QUEST_DAY_RE.test(day)) return null;
+  return day;
+}
+
+function parseBreakdownBody(body: unknown): BreakdownRequest | null {
+  if (!body || typeof body !== "object") return null;
+  const record = body as Record<string, unknown>;
+  if (typeof record.mainTask !== "string") return null;
+  if (record.sideTasks !== undefined && !Array.isArray(record.sideTasks)) {
+    return null;
+  }
+  const sideTasks = (record.sideTasks ?? []).filter(
+    (item): item is string => typeof item === "string"
+  );
+  return { mainTask: record.mainTask, sideTasks };
+}
+
+function sanitizeStage(stage: unknown): StagePayload | null {
+  if (!stage || typeof stage !== "object") return null;
+  const record = stage as Record<string, unknown>;
+  if (typeof record.title !== "string") return null;
+  const title = record.title.trim();
+  if (!title || title.length > 120) return null;
+  let hint: string | undefined;
+  if (record.hint !== undefined) {
+    if (typeof record.hint !== "string") return null;
+    const trimmed = record.hint.trim();
+    if (trimmed.length > 200) return null;
+    hint = trimmed || undefined;
+  }
+  return { title, hint };
+}
+
 async function handleBreakdown(
   request: Request,
   env: Env,
   ctx: ExecutionContext
 ): Promise<Response> {
   if (env.API_SHARED_SECRET) {
-    const secret = request.headers.get("X-API-Secret");
-    if (secret !== env.API_SHARED_SECRET) {
+    const secret = request.headers.get("X-API-Secret") ?? "";
+    if (!timingSafeEqual(secret, env.API_SHARED_SECRET)) {
       return json({ error: "Unauthorized" }, 401);
     }
   }
@@ -69,19 +121,24 @@ async function handleBreakdown(
     return json({ error: "Missing or invalid X-Device-ID header" }, 400);
   }
 
-  let body: BreakdownRequest;
+  let rawBody: unknown;
   try {
-    body = await request.json<BreakdownRequest>();
+    rawBody = await request.json();
   } catch {
     return json({ error: "Invalid JSON body" }, 400);
   }
 
-  const mainTask = body.mainTask?.trim();
+  const body = parseBreakdownBody(rawBody);
+  if (!body) {
+    return json({ error: "Invalid request body" }, 400);
+  }
+
+  const mainTask = body.mainTask.trim();
   if (!mainTask || mainTask.length > 500) {
     return json({ error: "mainTask is required (max 500 chars)" }, 400);
   }
 
-  const sideTasks = (body.sideTasks ?? [])
+  const sideTasks = body.sideTasks
     .map((s) => s.trim())
     .filter(Boolean)
     .slice(0, 2);
@@ -92,10 +149,10 @@ async function handleBreakdown(
     }
   }
 
-  const maxPerDay = parseInt(env.MAX_REQUESTS_PER_DAY || "3", 10);
+  const maxPerDay = resolveMaxPerDay(env.MAX_REQUESTS_PER_DAY);
   const questDay =
-    request.headers.get("X-Quest-Day")?.trim() ||
-    request.headers.get("X-Intent-Day")?.trim() ||
+    normalizeQuestDay(request.headers.get("X-Quest-Day") ?? undefined) ||
+    normalizeQuestDay(request.headers.get("X-Intent-Day") ?? undefined) ||
     rateLimitDateKey();
   const allowed = await peekRateLimit(deviceId, questDay, maxPerDay);
   if (!allowed) {
@@ -167,7 +224,7 @@ function rateLimitDateKey(): string {
 
 function rateLimitCacheRequest(deviceId: string, day: string): Request {
   return new Request(
-    `https://rate-limit.daily-intent.internal/${encodeURIComponent(deviceId)}/${day}`
+    `https://rate-limit.daily-intent.internal/${encodeURIComponent(deviceId)}/${encodeURIComponent(day)}`
   );
 }
 
@@ -240,13 +297,20 @@ sides 数组长度必须等于支线数量。每个任务的 stages 数组长度
     );
   }
 
-  parsed.main.stages = parsed.main.stages.slice(0, 3);
-  if (parsed.main.stages.length < 2) {
+  const mainStages = parsed.main.stages
+    .map(sanitizeStage)
+    .filter((stage): stage is StagePayload => stage !== null)
+    .slice(0, 3);
+  if (mainStages.length < 2) {
     throw new BreakdownValidationError("AI breakdown main must have 2-3 stages");
   }
+  parsed.main.stages = mainStages;
 
   parsed.sides = sides.map((side, i) => {
-    const stages = (side.stages ?? []).slice(0, 3);
+    const stages = (side.stages ?? [])
+      .map(sanitizeStage)
+      .filter((stage): stage is StagePayload => stage !== null)
+      .slice(0, 3);
     if (stages.length < 2) {
       throw new BreakdownValidationError(`AI breakdown side ${i + 1} must have 2-3 stages`);
     }
