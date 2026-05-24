@@ -6,6 +6,7 @@ struct TodayTabRootView: View {
     @Query(sort: \DailyPlan.updatedAt, order: .reverse) private var allPlans: [DailyPlan]
     @State private var showTabsHint = false
     @State private var pinnedPlanID: PersistentIdentifier?
+    @State private var showQuestIntake = false
 
     private var todayPlan: DailyPlan? {
         if let pinned = pinnedTodayPlan {
@@ -27,12 +28,9 @@ struct TodayTabRootView: View {
                         TodayBoardView(plan: plan, onPlanUpdated: { touchPlan(plan) })
                             .id(plan.persistentModelID)
                     } else {
-                        DailyQuestInputView(
-                            title: "今日任务",
-                            subtitle: "写下今日主线与支线，领取任务或由默认阶段开始",
-                            showFlowHints: false,
-                            onCompleted: {}
-                        )
+                        TodayEmptyQuestView {
+                            showQuestIntake = true
+                        }
                     }
                 }
             }
@@ -63,6 +61,12 @@ struct TodayTabRootView: View {
                     pinnedPlanID = id
                 }
                 touchContext()
+                if pinnedTodayPlan != nil {
+                    showQuestIntake = false
+                }
+            }
+            .navigationDestination(isPresented: $showQuestIntake) {
+                TodayQuestIntakeView(onCompleted: { touchContext() })
             }
         }
     }

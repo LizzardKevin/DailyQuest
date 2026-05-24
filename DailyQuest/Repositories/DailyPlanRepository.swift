@@ -163,7 +163,7 @@ enum DailyPlanSaveError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .invalidContent:
-            return "拆解已返回，但阶段未能写入本地数据库，请重试或使用「默认阶段（调试）」"
+            return "拆解已返回，但阶段未能写入本地数据库，请重试"
         }
     }
 }

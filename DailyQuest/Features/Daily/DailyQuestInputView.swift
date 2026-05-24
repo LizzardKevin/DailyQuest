@@ -1,7 +1,7 @@
 import SwiftUI
 import SwiftData
 
-/// 主线 + 支线录入；Release 仅 AI 领取，Debug 可选默认阶段。
+/// 主线 + 支线录入，通过 AI 拆解后领取。
 struct DailyQuestInputView: View {
     let title: String
     let subtitle: String
@@ -81,7 +81,7 @@ struct DailyQuestInputView: View {
         PrimaryButton(isLoading ? "正在拆解…" : "领取任务", icon: "flag.fill") {
             guard !isLoading else { return }
             isLoading = true
-            Task { await submit(useLLM: true) }
+            Task { await submit() }
         }
         .disabled(mainText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isLoading)
         .overlay {
@@ -89,15 +89,6 @@ struct DailyQuestInputView: View {
                 ProgressView().tint(.white)
             }
         }
-
-        #if DEBUG
-        SecondaryGlassButton(title: "使用默认阶段（仅调试）") {
-            guard !isLoading else { return }
-            isLoading = true
-            Task { await submit(useLLM: false) }
-        }
-        .disabled(mainText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isLoading)
-        #endif
     }
 
     private func medalConfirmationView(design: MedalDesign) -> some View {
@@ -228,7 +219,7 @@ struct DailyQuestInputView: View {
         }
     }
 
-    private func submit(useLLM: Bool) async {
+    private func submit() async {
         let trimmedMain = mainText.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedMain.isEmpty else {
             isLoading = false
@@ -245,28 +236,13 @@ struct DailyQuestInputView: View {
         defer { isLoading = false }
 
         do {
-            let plan: DailyPlan
-            #if DEBUG
-            if useLLM {
-                let breakdown = try await llm.breakdown(mainTask: trimmedMain, sideTasks: trimmedSides)
-                plan = try PlanBuilder.makePlan(
-                    date: .now,
-                    mainText: trimmedMain,
-                    sideTexts: trimmedSides,
-                    breakdown: breakdown
-                )
-            } else {
-                plan = PlanBuilder.makeManualPlan(date: .now, mainText: trimmedMain, sideTexts: trimmedSides)
-            }
-            #else
             let breakdown = try await llm.breakdown(mainTask: trimmedMain, sideTasks: trimmedSides)
-            plan = try PlanBuilder.makePlan(
+            let plan = try PlanBuilder.makePlan(
                 date: .now,
                 mainText: trimmedMain,
                 sideTexts: trimmedSides,
                 breakdown: breakdown
             )
-            #endif
 
             let savedPlan = try repository.save(plan, context: context)
             savedPlanID = savedPlan.persistentModelID
@@ -307,7 +283,7 @@ struct DailyQuestInputView: View {
                   fallback.hasValidQuestContent {
             planID = fallback.persistentModelID
         } else {
-            errorMessage = "任务未能写入本地，请重新领取或使用下方「默认阶段（调试）」"
+            errorMessage = "任务未能写入本地，请重新领取"
             awaitingMedalConfirmation = false
             showErrorAlert = true
             return
