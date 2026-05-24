@@ -65,15 +65,50 @@ struct LocalDailyPlanRepository: DailyPlanRepository {
 
         if let existing = try plan(for: day, in: context), existing !== newPlan {
             context.delete(existing)
+            try context.save()
         }
 
+        insertTaskGraph(for: newPlan, in: context)
         context.insert(newPlan)
         try context.save()
         context.processPendingChanges()
+
+        guard newPlan.hasValidQuestContent else {
+            throw DailyPlanSaveError.invalidContent
+        }
+    }
+
+    private func insertTaskGraph(for plan: DailyPlan, in context: ModelContext) {
+        if let main = plan.mainTask {
+            context.insert(main)
+            for stage in main.stages {
+                context.insert(stage)
+            }
+        }
+        for side in plan.sideTasks {
+            context.insert(side)
+            for stage in side.stages {
+                context.insert(stage)
+            }
+        }
+        if let medal = plan.medal {
+            context.insert(medal)
+        }
     }
 
     func delete(_ plan: DailyPlan, context: ModelContext) throws {
         context.delete(plan)
         try context.save()
+    }
+}
+
+enum DailyPlanSaveError: LocalizedError {
+    case invalidContent
+
+    var errorDescription: String? {
+        switch self {
+        case .invalidContent:
+            return "任务保存失败：拆解结果未写入本地，请重试"
+        }
     }
 }

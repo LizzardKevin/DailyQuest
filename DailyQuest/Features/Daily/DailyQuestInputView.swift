@@ -20,6 +20,9 @@ struct DailyQuestInputView: View {
     @State private var reminderTime = ReminderSettings.date
     @State private var showReminderCard = false
     @State private var previewDesign: MedalDesign?
+    @State private var awaitingMedalConfirmation = false
+    @State private var savedMainSummary = ""
+    @State private var savedStageCount = 0
 
     private let repository: DailyPlanRepository = LocalDailyPlanRepository()
     private let llm: TaskBreakdownProviding = BackendBreakdownClient()
@@ -27,53 +30,11 @@ struct DailyQuestInputView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 20) {
-                ScreenHeader(title, subtitle: subtitle)
-
-                if showFlowHints, showQuestHint {
-                    LightPromptBanner(
-                        message: TutorialContent.lightPromptQuestPage,
-                        onDismiss: dismissQuestHint
-                    )
+                if awaitingMedalConfirmation, let previewDesign {
+                    medalConfirmationView(design: previewDesign)
+                } else {
+                    questInputForm
                 }
-
-                if showFlowHints, showReminderCard {
-                    reminderCard
-                }
-
-                if let previewDesign {
-                    medalPreviewCard(previewDesign)
-                }
-
-                mainTaskCard
-                sideTasksCard
-
-                if let errorMessage {
-                    Text(errorMessage)
-                        .font(AppTheme.caption(12))
-                        .foregroundStyle(.red)
-                        .padding(.horizontal, 4)
-                }
-
-                PrimaryButton(isLoading ? "正在拆解…" : "领取任务", icon: "flag.fill") {
-                    guard !isLoading else { return }
-                    isLoading = true
-                    Task { await submit(useLLM: true) }
-                }
-                .disabled(mainText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isLoading)
-                .overlay {
-                    if isLoading {
-                        ProgressView().tint(.white)
-                    }
-                }
-
-                #if DEBUG
-                SecondaryGlassButton(title: "使用默认阶段（仅调试）") {
-                    guard !isLoading else { return }
-                    isLoading = true
-                    Task { await submit(useLLM: false) }
-                }
-                .disabled(mainText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isLoading)
-                #endif
             }
             .padding(20)
         }
@@ -85,25 +46,96 @@ struct DailyQuestInputView: View {
         }
     }
 
-    private func medalPreviewCard(_ design: MedalDesign) -> some View {
-        GlassCard {
-            HStack(spacing: 16) {
-                MedalView(status: .base, design: design, size: 52, animateHolographic: false)
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("今日奖牌预览")
-                        .font(AppTheme.caption())
-                        .foregroundStyle(AppTheme.inkMuted)
-                    Text(design.title)
-                        .font(AppTheme.title(16))
-                        .foregroundStyle(AppTheme.ink)
-                    if let subtitle = design.subtitle {
-                        Text(subtitle)
-                            .font(AppTheme.caption(12))
-                            .foregroundStyle(AppTheme.inkMuted)
-                            .lineLimit(2)
+    @ViewBuilder
+    private var questInputForm: some View {
+        ScreenHeader(title, subtitle: subtitle)
+
+        if showFlowHints, showQuestHint {
+            LightPromptBanner(
+                message: TutorialContent.lightPromptQuestPage,
+                onDismiss: dismissQuestHint
+            )
+        }
+
+        if showFlowHints, showReminderCard {
+            reminderCard
+        }
+
+        mainTaskCard
+        sideTasksCard
+
+        if let errorMessage {
+            Text(errorMessage)
+                .font(AppTheme.caption(12))
+                .foregroundStyle(.red)
+                .padding(.horizontal, 4)
+        }
+
+        PrimaryButton(isLoading ? "正在拆解…" : "领取任务", icon: "flag.fill") {
+            guard !isLoading else { return }
+            isLoading = true
+            Task { await submit(useLLM: true) }
+        }
+        .disabled(mainText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isLoading)
+        .overlay {
+            if isLoading {
+                ProgressView().tint(.white)
+            }
+        }
+
+        #if DEBUG
+        SecondaryGlassButton(title: "使用默认阶段（仅调试）") {
+            guard !isLoading else { return }
+            isLoading = true
+            Task { await submit(useLLM: false) }
+        }
+        .disabled(mainText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isLoading)
+        #endif
+    }
+
+    private func medalConfirmationView(design: MedalDesign) -> some View {
+        VStack(spacing: 24) {
+            ScreenHeader("确认今日奖牌", subtitle: "AI 已根据你的任务与今日大事生成专属勋章")
+
+            GlassCard {
+                VStack(spacing: 20) {
+                    MedalView(status: .base, design: design, size: 120, animateHolographic: false)
+
+                    VStack(spacing: 6) {
+                        Text(design.title)
+                            .font(AppTheme.title(20))
+                            .foregroundStyle(AppTheme.ink)
+                            .multilineTextAlignment(.center)
+                        if let subtitle = design.subtitle {
+                            Text(subtitle)
+                                .font(AppTheme.body(14))
+                                .foregroundStyle(AppTheme.inkMuted)
+                                .multilineTextAlignment(.center)
+                        }
+                    }
+
+                    if !savedMainSummary.isEmpty {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("主线已拆解为 \(savedStageCount) 个阶段")
+                                .font(AppTheme.caption())
+                                .foregroundStyle(AppTheme.mainAccent)
+                            Text(savedMainSummary)
+                                .font(AppTheme.body(14))
+                                .foregroundStyle(AppTheme.ink)
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
                     }
                 }
-                Spacer()
+                .frame(maxWidth: .infinity)
+            }
+
+            PrimaryButton("确认，开始今日任务", icon: "checkmark.circle.fill") {
+                confirmAndFinish()
+            }
+
+            SecondaryGlassButton(title: "返回修改任务") {
+                awaitingMedalConfirmation = false
+                previewDesign = nil
             }
         }
     }
@@ -202,6 +234,7 @@ struct DailyQuestInputView: View {
 
         errorMessage = nil
         previewDesign = nil
+        awaitingMedalConfirmation = false
         defer { isLoading = false }
 
         do {
@@ -229,19 +262,39 @@ struct DailyQuestInputView: View {
             #endif
 
             try repository.save(plan, context: context)
+
+            guard let persisted = try repository.plan(for: .now, in: context),
+                  persisted.hasValidQuestContent else {
+                throw DailyPlanSaveError.invalidContent
+            }
+
             try await MedalDesignService.attachDesign(
-                to: plan,
+                to: persisted,
                 triviaTitle: triviaTitle,
                 triviaYear: triviaYear,
                 context: context
             )
-            previewDesign = MedalDesignService.design(for: plan)
-            LightPromptStore.markSeen(.questPage)
-            AppNotificationPoster.planDidChange()
-            try? context.save()
-            onCompleted()
+
+            guard let design = MedalDesignService.design(for: persisted) else {
+                throw MedalDesignError.network
+            }
+
+            savedMainSummary = persisted.mainTask?.rawText ?? trimmedMain
+            savedStageCount = persisted.mainTask?.stages.count ?? 0
+            previewDesign = design
+            awaitingMedalConfirmation = true
         } catch {
             errorMessage = error.localizedDescription
+            awaitingMedalConfirmation = false
+        }
+    }
+
+    private func confirmAndFinish() {
+        LightPromptStore.markSeen(.questPage)
+        AppNotificationPoster.planDidChange()
+        awaitingMedalConfirmation = false
+        withAnimation(.easeInOut(duration: 0.35)) {
+            onCompleted()
         }
     }
 
