@@ -15,12 +15,10 @@ enum ModelContainerFactory {
       return try ModelContainer(for: schema, configurations: [configuration])
     } catch {
       // 模型变更后旧库不兼容时，删除本地 store 再试一次。
-      if let url = configuration.url {
-        try? FileManager.default.removeItem(at: url)
-        for suffix in ["-wal", "-shm"] {
-          try? FileManager.default.removeItem(at: URL(fileURLWithPath: url.path + suffix))
-        }
-      }
+      let url = configuration.url
+      try? FileManager.default.removeItem(at: url)
+      try? FileManager.default.removeItem(at: URL(fileURLWithPath: url.path + "-wal"))
+      try? FileManager.default.removeItem(at: URL(fileURLWithPath: url.path + "-shm"))
       do {
         return try ModelContainer(for: schema, configurations: [configuration])
       } catch {
