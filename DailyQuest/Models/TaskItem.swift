@@ -5,8 +5,13 @@ import SwiftData
 final class TaskItem {
     var kindRaw: String
     var rawText: String
-    @Relationship(deleteRule: .cascade)
+
+    @Relationship(deleteRule: .cascade, inverse: \TaskStage.task)
     var stages: [TaskStage]
+
+    var planForMain: DailyPlan?
+
+    var planForSide: DailyPlan?
 
     var kind: TaskItemKind {
         get { TaskItemKind(rawValue: kindRaw) ?? .main }

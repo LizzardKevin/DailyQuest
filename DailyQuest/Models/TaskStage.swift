@@ -9,6 +9,8 @@ final class TaskStage {
     var isDone: Bool
     var completedAt: Date?
 
+    var task: TaskItem?
+
     init(order: Int, title: String, hint: String? = nil, isDone: Bool = false, completedAt: Date? = nil) {
         self.order = order
         self.title = title

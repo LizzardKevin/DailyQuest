@@ -10,10 +10,10 @@ final class DailyPlan {
     /// JSON-encoded `MedalDesign` draft for this quest day.
     var medalDesignJSON: String?
 
-    @Relationship(deleteRule: .cascade)
+    @Relationship(deleteRule: .cascade, inverse: \TaskItem.planForMain)
     var mainTask: TaskItem?
 
-    @Relationship(deleteRule: .cascade)
+    @Relationship(deleteRule: .cascade, inverse: \TaskItem.planForSide)
     var sideTasks: [TaskItem]
 
     @Relationship(deleteRule: .cascade)
@@ -58,5 +58,23 @@ final class DailyPlan {
         let text = main.rawText.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !text.isEmpty, !main.stages.isEmpty else { return false }
         return true
+    }
+}
+
+enum DailyPlanRelationshipWire {
+    /// 保存前绑定 SwiftData 双向关系，避免读取时 mainTask / stages 丢失。
+    static func wire(_ plan: DailyPlan) {
+        if let main = plan.mainTask {
+            main.planForMain = plan
+            for stage in main.stages {
+                stage.task = main
+            }
+        }
+        for side in plan.sideTasks {
+            side.planForSide = plan
+            for stage in side.stages {
+                stage.task = side
+            }
+        }
     }
 }

@@ -23,6 +23,7 @@ struct DailyQuestInputView: View {
     @State private var awaitingMedalConfirmation = false
     @State private var savedMainSummary = ""
     @State private var savedStageCount = 0
+    @State private var savedPlanID: PersistentIdentifier?
 
     private let repository: DailyPlanRepository = LocalDailyPlanRepository()
     private let llm: TaskBreakdownProviding = BackendBreakdownClient()
@@ -262,6 +263,7 @@ struct DailyQuestInputView: View {
             #endif
 
             try repository.save(plan, context: context)
+            savedPlanID = plan.persistentModelID
 
             try await MedalDesignService.attachDesign(
                 to: plan,
@@ -285,6 +287,19 @@ struct DailyQuestInputView: View {
     }
 
     private func confirmAndFinish() {
+        context.processPendingChanges()
+
+        if let savedPlanID,
+           let persisted = context.model(for: savedPlanID) as? DailyPlan,
+           persisted.hasValidQuestContent {
+            _ = persisted.mainTask?.stages.count
+        } else if (try? repository.hasPlanForCurrentQuestDay(in: context)) != true {
+            errorMessage = "任务未能写入本地，请重新领取"
+            awaitingMedalConfirmation = false
+            return
+        }
+
+        try? context.save()
         LightPromptStore.markSeen(.questPage)
         AppNotificationPoster.planDidChange()
         awaitingMedalConfirmation = false

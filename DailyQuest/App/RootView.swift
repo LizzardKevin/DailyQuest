@@ -19,6 +19,7 @@ struct RootView: View {
                         showDailyFlow = false
                         selectedTab = 1
                     }
+                    context.processPendingChanges()
                 }
                 .transition(.opacity)
             }

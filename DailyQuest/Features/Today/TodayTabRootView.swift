@@ -3,10 +3,15 @@ import SwiftData
 
 struct TodayTabRootView: View {
     @Environment(\.modelContext) private var context
-    @State private var todayPlan: DailyPlan?
+    @Query(sort: \DailyPlan.updatedAt, order: .reverse) private var allPlans: [DailyPlan]
     @State private var showTabsHint = false
+    @State private var refreshToken = UUID()
 
-    private let repository: DailyPlanRepository = LocalDailyPlanRepository()
+    private var todayPlan: DailyPlan? {
+        let key = QuestDayCalendar.questDayKey()
+        let matching = allPlans.filter { QuestDayCalendar.questDayKey(for: $0.date) == key }
+        return LocalDailyPlanRepository.pickBest(from: matching)
+    }
 
     var body: some View {
         NavigationStack {
@@ -15,13 +20,14 @@ struct TodayTabRootView: View {
 
                 Group {
                     if let plan = todayPlan, plan.hasValidQuestContent {
-                        TodayBoardView(plan: plan, onPlanUpdated: { reload() })
+                        TodayBoardView(plan: plan, onPlanUpdated: { bumpRefresh() })
+                            .id(plan.persistentModelID)
                     } else {
                         DailyQuestInputView(
                             title: "今日任务",
                             subtitle: "写下今日主线与支线，领取任务或由默认阶段开始",
                             showFlowHints: false,
-                            onCompleted: { reload() }
+                            onCompleted: { bumpRefresh() }
                         )
                     }
                 }
@@ -45,21 +51,22 @@ struct TodayTabRootView: View {
                 }
             }
             .onAppear {
-                reload()
+                bumpRefresh()
                 showTabsHint = !LightPromptStore.hasSeen(.mainTabs)
             }
             .onReceive(NotificationCenter.default.publisher(for: .dailyPlanDidChange)) { _ in
-                reload()
+                bumpRefresh()
             }
         }
+        .id(refreshToken)
     }
 
-    private func reload() {
+    private func bumpRefresh() {
         context.processPendingChanges()
-        todayPlan = try? repository.plan(for: .now, in: context)
         if let plan = todayPlan {
             _ = plan.mainTask?.stages.count
         }
+        refreshToken = UUID()
     }
 
     private func dismissTabsHint() {
