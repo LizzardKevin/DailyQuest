@@ -11,9 +11,14 @@ struct OnThisDayEvent: Identifiable, Equatable {
     /// 用于 UI 的完整一行，例如「1915 年 · 意大利对奥匈帝国宣战…」
     var formattedDescription: String {
         if let year {
-            return "\(year) 年 · \(text)"
+            return "\(year.yearString) 年 · \(text)"
         }
         return text
+    }
+
+    /// 年份展示（无千分位逗号），例如 `1915 年`。
+    var yearHeadline: String? {
+        year.map { "\($0.yearString) 年" }
     }
 
     enum Kind: String {
@@ -164,5 +169,12 @@ actor OnThisDayService {
         func resolvedYearAndText() -> (year: Int?, text: String) {
             (year, text)
         }
+    }
+}
+
+extension Int {
+    /// 年份等整数展示：避免 SwiftUI `Text("\(year)")` 在部分语言下变成 `2,000`。
+    var yearString: String {
+        String(self)
     }
 }

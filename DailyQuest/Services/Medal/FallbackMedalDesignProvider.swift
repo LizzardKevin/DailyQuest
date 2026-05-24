@@ -37,7 +37,7 @@ struct FallbackMedalDesignProvider: MedalDesignProviding {
 
         let title: String
         if let triviaTitle, !triviaTitle.isEmpty {
-            let year = triviaYear.map { String($0) } ?? ""
+            let year = triviaYear.map(\.yearString) ?? ""
             title = year.isEmpty ? triviaTitle : "\(year) · \(triviaTitle)"
         } else {
             title = "探索 · \(questDayKey.suffix(5))"
