@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+import { isUnlimitedRateLimit, resolveMaxPerDay } from "./index";
 
 /**
  * Pure logic mirrors for documentation; full integration tests need Miniflare/wrangler vitest pool.
@@ -22,6 +23,13 @@ describe("breakdown request validation", () => {
     expect(valid.test("2026-05-22")).toBe(true);
     expect(valid.test("2026-5-22")).toBe(false);
     expect(valid.test("../etc/passwd")).toBe(false);
+  });
+
+  it("treats MAX_REQUESTS_PER_DAY=0 as unlimited", () => {
+    expect(resolveMaxPerDay("0", 3)).toBe(0);
+    expect(isUnlimitedRateLimit(0)).toBe(true);
+    expect(resolveMaxPerDay("3", 3)).toBe(3);
+    expect(isUnlimitedRateLimit(3)).toBe(false);
   });
 
   it("honors forceRegenerate flag in request body", () => {

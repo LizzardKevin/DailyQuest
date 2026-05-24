@@ -88,7 +88,7 @@ struct BackendBreakdownClient: TaskBreakdownProviding {
         }
 
         if http.statusCode == 429 {
-            throw BreakdownValidationError.apiError("今日修改次数已用完（每任务日 3 次），请明天再试")
+            throw BreakdownValidationError.apiError("今日拆解次数已用完，请明天再试")
         }
 
         if http.statusCode == 422 {

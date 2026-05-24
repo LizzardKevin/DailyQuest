@@ -74,9 +74,14 @@ struct DailyTriviaView: View {
                     .background {
                         Capsule().fill(AppTheme.mainAccent.opacity(0.12))
                     }
+                if let year = event.year {
+                    Text("\(year) 年")
+                        .font(AppTheme.title(20))
+                        .foregroundStyle(AppTheme.ink)
+                }
                 Text(event.text)
                     .font(AppTheme.body(15))
-                    .foregroundStyle(AppTheme.ink)
+                    .foregroundStyle(AppTheme.inkMuted)
                     .fixedSize(horizontal: false, vertical: true)
             }
         }

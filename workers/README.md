@@ -41,7 +41,10 @@ npm run test
 
 ## Rate limits
 
-- Breakdown: `MAX_REQUESTS_PER_DAY` (default 3) per device per quest day
+- Breakdown: `MAX_REQUESTS_PER_DAY` per device per quest day
+  - `0` = **unlimited** (current default in `wrangler.jsonc` for development)
+  - `3` = production cap — use `wrangler deploy --env production` or set the var to `"3"`
+  - A breakdown counts **only after** DeepSeek returns a valid JSON response (failed POST / 502 / 422 do not increment)
 - Medal design: `MAX_MEDAL_DESIGNS_PER_DAY` (default 2) per device per quest day — typically one on claim, one on settings regenerate
 
 ## Smoke test

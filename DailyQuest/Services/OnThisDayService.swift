@@ -3,7 +3,18 @@ import Foundation
 struct OnThisDayEvent: Identifiable, Equatable {
     let id: String
     let kind: Kind
+    /// 公元年份；本地 fallback 与 Wikimedia 均应尽量提供。
+    let year: Int?
+    /// 事件描述（不含年份前缀）。
     let text: String
+
+    /// 用于 UI 的完整一行，例如「1915 年 · 意大利对奥匈帝国宣战…」
+    var formattedDescription: String {
+        if let year {
+            return "\(year) 年 · \(text)"
+        }
+        return text
+    }
 
     enum Kind: String {
         case birth
@@ -97,9 +108,11 @@ actor OnThisDayService {
                 guard collected.count < maxCount else { break }
                 let text = (item["text"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines)
                 guard let text, !text.isEmpty else { continue }
+                let year = (item["year"] as? Int) ?? (item["year"] as? Double).map { Int($0) }
                 collected.append(OnThisDayEvent(
                     id: "\(kind.rawValue)-\(collected.count)",
                     kind: kind,
+                    year: year,
                     text: text
                 ))
             }
@@ -122,10 +135,12 @@ actor OnThisDayService {
         }
 
         return entries.prefix(maxCount).enumerated().map { index, entry in
-            OnThisDayEvent(
+            let parsed = entry.resolvedYearAndText()
+            return OnThisDayEvent(
                 id: "local-\(key)-\(index)",
                 kind: OnThisDayEvent.Kind(rawValue: entry.kind) ?? .event,
-                text: entry.text
+                year: parsed.year,
+                text: parsed.text
             )
         }
     }
@@ -135,6 +150,7 @@ actor OnThisDayService {
             OnThisDayEvent(
                 id: "inline-1",
                 kind: .event,
+                year: Calendar.current.component(.year, from: .now),
                 text: "\(month)月\(day)日：每一天都是新的任务日，写下今天最重要的一件事吧。"
             )
         ]
@@ -142,6 +158,11 @@ actor OnThisDayService {
 
     private struct FallbackEntry: Decodable {
         let kind: String
+        let year: Int?
         let text: String
+
+        func resolvedYearAndText() -> (year: Int?, text: String) {
+            (year, text)
+        }
     }
 }

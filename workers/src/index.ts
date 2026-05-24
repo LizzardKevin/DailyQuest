@@ -102,10 +102,16 @@ function timingSafeEqual(a: string, b: string): boolean {
   return mismatch === 0;
 }
 
-function resolveMaxPerDay(raw: string | undefined, fallback: number): number {
-  const parsed = parseInt(raw || String(fallback), 10);
-  if (!Number.isFinite(parsed) || parsed < 1) return fallback;
+/** `0` = unlimited (development). Positive values cap per device per quest day. */
+export function resolveMaxPerDay(raw: string | undefined, fallback: number): number {
+  const parsed = parseInt(raw ?? "", 10);
+  if (!Number.isFinite(parsed)) return fallback;
+  if (parsed <= 0) return 0;
   return Math.min(parsed, 20);
+}
+
+export function isUnlimitedRateLimit(maxPerDay: number): boolean {
+  return maxPerDay <= 0;
 }
 
 const QUEST_DAY_RE = /^\d{4}-\d{2}-\d{2}$/;
@@ -216,12 +222,16 @@ async function handleBreakdown(
     normalizeQuestDay(request.headers.get("X-Quest-Day") ?? undefined) ||
     normalizeQuestDay(request.headers.get("X-Intent-Day") ?? undefined) ||
     rateLimitDateKey();
-  const allowed = await peekRateLimit("breakdown", deviceId, questDay, maxPerDay);
-  if (!allowed) {
-    return json(
-      { error: "今日修改次数已用完（每任务日 3 次），请明天再试" },
-      429
-    );
+  if (!isUnlimitedRateLimit(maxPerDay)) {
+    const allowed = await peekRateLimit("breakdown", deviceId, questDay, maxPerDay);
+    if (!allowed) {
+      return json(
+        {
+          error: `今日拆解次数已用完（每任务日 ${maxPerDay} 次），请明天再试`,
+        },
+        429
+      );
+    }
   }
 
   if (!env.DEEPSEEK_API_KEY) {
@@ -234,7 +244,9 @@ async function handleBreakdown(
       mainTask,
       sideTasks
     );
-    ctx.waitUntil(commitRateLimit("breakdown", deviceId, questDay));
+    if (!isUnlimitedRateLimit(maxPerDay)) {
+      ctx.waitUntil(commitRateLimit("breakdown", deviceId, questDay));
+    }
     return json(breakdown);
   } catch (err) {
     if (err instanceof BreakdownValidationError) {

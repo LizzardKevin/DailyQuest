@@ -20,7 +20,7 @@ struct QuestIntakeView: View {
             let events = await OnThisDayService.shared.events(for: .now)
             if let first = events.first {
                 triviaTitle = first.text
-                triviaYear = nil
+                triviaYear = first.year
             }
         }
     }

@@ -4,7 +4,16 @@
   "main": "src/index.ts",
   "compatibility_date": "2025-05-20",
   "vars": {
-    "MAX_REQUESTS_PER_DAY": "3",
+    // Development: 0 = unlimited breakdowns. Production deploy: set to "3".
+    "MAX_REQUESTS_PER_DAY": "0",
     "MAX_MEDAL_DESIGNS_PER_DAY": "2"
+  },
+  "env": {
+    "production": {
+      "vars": {
+        "MAX_REQUESTS_PER_DAY": "3",
+        "MAX_MEDAL_DESIGNS_PER_DAY": "2"
+      }
+    }
   }
 }
