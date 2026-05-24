@@ -2,10 +2,11 @@ import Foundation
 
 /// 断网或 AI 失败时：按任务日种子生成稳定且每日不同的模板奖牌。
 struct FallbackMedalDesignProvider: MedalDesignProviding {
-    private static let symbols = [
+    private static let centerSymbols = [
         "seal.fill", "star.fill", "flame.fill", "leaf.fill", "bolt.fill",
         "moon.stars.fill", "sun.max.fill", "sparkles", "crown.fill", "flag.fill",
-        "book.fill", "figure.walk", "heart.fill", "globe.americas.fill", "wand.and.stars"
+        "book.fill", "figure.walk", "heart.fill", "globe.americas.fill", "wand.and.stars",
+        "figure.run", "cup.and.saucer.fill", "pencil", "lightbulb.fill"
     ]
 
     private static let palettes: [(String, String, String)] = [
@@ -30,8 +31,9 @@ struct FallbackMedalDesignProvider: MedalDesignProviding {
         let seed = questDayKey.hashValue ^ mainTask.hashValue ^ (forceRegenerate ? 0x9E37 : 0)
         var rng = SeededGenerator(seed: UInt64(bitPattern: Int64(seed)))
 
-        let symbol = Self.symbols[Int(rng.next() % UInt64(Self.symbols.count))]
+        let centerObject = Self.centerSymbols[Int(rng.next() % UInt64(Self.centerSymbols.count))]
         let palette = Self.palettes[Int(rng.next() % UInt64(Self.palettes.count))]
+        let ring = MedalRingCatalog.ringElements(forMainTask: mainTask, triviaTitle: triviaTitle)
 
         let title: String
         if let triviaTitle, !triviaTitle.isEmpty {
@@ -50,13 +52,14 @@ struct FallbackMedalDesignProvider: MedalDesignProviding {
             subtitle: String(subtitle),
             themeTags: ["fallback", "daily"],
             visual: MedalVisualSpec(
-                symbolName: symbol,
+                ringElements: ring,
+                centerFillHex: palette.1,
+                centerObjectSymbol: centerObject,
                 palette: MedalPalette(
                     primaryHex: palette.0,
                     secondaryHex: palette.1,
                     accentHex: palette.2
-                ),
-                pattern: "seal"
+                )
             ),
             source: .fallbackTemplate,
             createdAt: .now

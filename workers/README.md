@@ -6,7 +6,14 @@ Cloudflare Worker for DailyQuest iOS app.
 
 - `GET /health` → `{ "ok": true, "service": "daily-quest-api" }`
 - `POST /v1/breakdown` — task stage breakdown (DeepSeek)
-- `POST /v1/medal/design` — daily medal metadata (DeepSeek)
+- `POST /v1/medal/design` — daily medal metadata (DeepSeek), schema v2
+
+### Medal visual (schema v2)
+
+- `ringElements`: 6–8 ornaments around the ring (`kind`: bead, wheat, vine, pearl, leaf, star, …)
+- `centerFillHex`: center disc background color
+- `centerObjectSymbol`: SF Symbol on the disc (from main task)
+- `palette`: ring ornament colors
 
 ### `POST /v1/medal/design` body
 

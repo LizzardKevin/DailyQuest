@@ -6,36 +6,41 @@ struct MedalView: View {
     var size: CGFloat = 80
     var animateHolographic: Bool = true
 
+    private var visual: MedalVisualSpec? { design?.visual }
+    private var ringElements: [MedalRingElement] { visual?.resolvedRingElements ?? [] }
+
     var body: some View {
         ZStack {
             Circle()
                 .fill(.ultraThinMaterial)
-                .frame(width: size * 1.18, height: size * 1.18)
+                .frame(width: size * 1.22, height: size * 1.22)
                 .overlay {
                     Circle()
                         .strokeBorder(AppTheme.glassBorder, lineWidth: 1.5)
                 }
-                .shadow(color: accentColor.opacity(0.12), radius: size * 0.12, y: size * 0.06)
+                .shadow(color: accentColor.opacity(0.14), radius: size * 0.1, y: size * 0.05)
 
             Circle()
-                .fill(medalGradient)
-                .frame(width: size, height: size)
+                .strokeBorder(ringBandGradient, lineWidth: size * 0.07)
+                .frame(width: size * 1.02, height: size * 1.02)
+
+            ForEach(Array(ringElements.enumerated()), id: \.offset) { index, element in
+                ringOrnament(element, index: index, total: ringElements.count)
+            }
+
+            Circle()
+                .fill(centerFillColor)
+                .frame(width: size * 0.64, height: size * 0.64)
                 .overlay {
                     Circle()
-                        .fill(
-                            LinearGradient(
-                                colors: [.white.opacity(0.5), .clear],
-                                startPoint: .topLeading,
-                                endPoint: .center
-                            )
-                        )
-                        .blendMode(.overlay)
+                        .strokeBorder(Color.white.opacity(0.35), lineWidth: 1)
                 }
+                .shadow(color: .black.opacity(0.08), radius: 2, y: 1)
 
-            Image(systemName: symbolName)
-                .font(.system(size: size * 0.38))
-                .foregroundStyle(iconGradient)
-                .shadow(color: accentColor.opacity(0.3), radius: 4, y: 2)
+            Image(systemName: centerObjectSymbol)
+                .font(.system(size: size * 0.3, weight: .semibold))
+                .foregroundStyle(centerObjectGradient)
+                .shadow(color: accentColor.opacity(0.25), radius: 3, y: 1)
 
             if status == .holographic {
                 HolographicOverlay(size: size, animate: animateHolographic)
@@ -44,38 +49,70 @@ struct MedalView: View {
         .opacity(status == .none ? 0.35 : 1)
     }
 
-    private var symbolName: String {
-        let name = design?.visual.symbolName ?? "seal.fill"
-        return MedalSymbolValidator.resolve(name)
+    private func ringOrnament(_ element: MedalRingElement, index: Int, total: Int) -> some View {
+        let angle = (Double(index) / Double(max(total, 1))) * 360 - 90
+        let radius = size * 0.44
+        let rad = angle * .pi / 180
+        let x = cos(rad) * radius
+        let y = sin(rad) * radius
+
+        return ZStack {
+            Circle()
+                .fill(ornamentBackground)
+                .frame(width: size * 0.16, height: size * 0.16)
+            Image(systemName: MedalRingCatalog.symbol(for: element.kind))
+                .font(.system(size: size * 0.075, weight: .semibold))
+                .foregroundStyle(ornamentForeground)
+        }
+        .offset(x: x, y: y)
+    }
+
+    private var centerObjectSymbol: String {
+        MedalSymbolValidator.resolve(visual?.centerObjectSymbol ?? "seal.fill")
+    }
+
+    private var centerFillColor: Color {
+        visual?.centerFill ?? visual?.palette.primary ?? AppTheme.mainAccent
     }
 
     private var accentColor: Color {
-        design?.visual.palette.accent ?? AppTheme.mainAccent
+        visual?.palette.accent ?? AppTheme.mainAccent
     }
 
-    private var medalGradient: LinearGradient {
-        if let palette = design?.visual.palette {
+    private var ornamentBackground: Color {
+        visual?.palette.secondary.opacity(0.92) ?? AppTheme.sideAccent.opacity(0.85)
+    }
+
+    private var ornamentForeground: Color {
+        visual?.palette.primary ?? AppTheme.mainAccent
+    }
+
+    private var ringBandGradient: LinearGradient {
+        if let palette = visual?.palette {
             return LinearGradient(
                 colors: [
-                    palette.primary.opacity(0.95),
+                    palette.accent.opacity(0.95),
+                    palette.primary.opacity(0.9),
                     palette.secondary.opacity(0.85),
-                    palette.accent.opacity(0.75)
+                    palette.accent.opacity(0.95)
                 ],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
         }
-        let p = AppTheme.active
         return LinearGradient(
-            colors: [p.medalFallbackTop, p.medalFallbackMid, p.medalFallbackBottom],
+            colors: [AppTheme.mainAccent, AppTheme.sideAccent],
             startPoint: .topLeading,
             endPoint: .bottomTrailing
         )
     }
 
-    private var iconGradient: LinearGradient {
+    private var centerObjectGradient: LinearGradient {
         LinearGradient(
-            colors: [accentColor.opacity(0.9), design?.visual.palette.primary ?? AppTheme.mainAccent],
+            colors: [
+                Color.white.opacity(0.95),
+                accentColor.opacity(0.85)
+            ],
             startPoint: .top,
             endPoint: .bottom
         )
@@ -117,8 +154,10 @@ enum MedalSymbolValidator {
     private static let allowed: Set<String> = [
         "seal.fill", "star.fill", "flame.fill", "leaf.fill", "bolt.fill",
         "moon.stars.fill", "sun.max.fill", "sparkles", "crown.fill", "flag.fill",
-        "book.fill", "figure.walk", "heart.fill", "globe.americas.fill", "wand.and.stars",
-        "trophy.fill", "medal.fill", "target", "checkmark.seal.fill", "lightbulb.fill"
+        "book.fill", "figure.walk", "figure.run", "heart.fill", "globe.americas.fill",
+        "wand.and.stars", "trophy.fill", "medal.fill", "target", "checkmark.seal.fill",
+        "lightbulb.fill", "pencil", "keyboard", "cup.and.saucer.fill", "fork.knife",
+        "dumbbell.fill", "brain.head.profile", "music.note", "paintbrush.fill"
     ]
 
     static func resolve(_ name: String) -> String {
@@ -148,7 +187,7 @@ private struct HolographicOverlay: View {
                 ),
                 lineWidth: max(2.5, size * 0.055)
             )
-            .frame(width: size * 1.14, height: size * 1.14)
+            .frame(width: size * 1.16, height: size * 1.16)
             .rotationEffect(.degrees(rotation))
             .blur(radius: 0.3)
             .blendMode(.plusLighter)
@@ -162,9 +201,35 @@ private struct HolographicOverlay: View {
 }
 
 #Preview {
-    HStack(spacing: 24) {
-        MedalView(status: .base)
-        MedalView(status: .holographic)
+    let sample = MedalDesign(
+        questDayKey: "2026-05-23",
+        schemaVersion: 2,
+        title: "林奈诞辰",
+        subtitle: "探索今日",
+        themeTags: ["nature"],
+        visual: MedalVisualSpec(
+            ringElements: [
+                MedalRingElement(kind: "wheat"),
+                MedalRingElement(kind: "vine"),
+                MedalRingElement(kind: "pearl"),
+                MedalRingElement(kind: "leaf"),
+                MedalRingElement(kind: "bead"),
+                MedalRingElement(kind: "star")
+            ],
+            centerFillHex: "#A3B18A",
+            centerObjectSymbol: "leaf.fill",
+            palette: MedalPalette(
+                primaryHex: "#588157",
+                secondaryHex: "#A3B18A",
+                accentHex: "#3A5A40"
+            )
+        ),
+        source: .ai,
+        createdAt: .now
+    )
+    return HStack(spacing: 24) {
+        MedalView(status: .base, design: sample)
+        MedalView(status: .holographic, design: sample)
     }
     .padding(40)
     .background(DawnBackground())

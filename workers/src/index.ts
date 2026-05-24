@@ -42,10 +42,15 @@ interface MedalPalettePayload {
   accentHex: string;
 }
 
+interface MedalRingElementPayload {
+  kind: string;
+}
+
 interface MedalVisualSpecPayload {
-  symbolName: string;
+  ringElements: MedalRingElementPayload[];
+  centerFillHex: string;
+  centerObjectSymbol: string;
   palette: MedalPalettePayload;
-  pattern?: string;
 }
 
 interface MedalDesignResponse {
@@ -62,12 +67,22 @@ interface MedalDesignResponse {
 const DEEPSEEK_URL = "https://api.deepseek.com/chat/completions";
 const MODEL = "deepseek-chat";
 
-const ALLOWED_SYMBOLS = new Set([
+const ALLOWED_CENTER_SYMBOLS = new Set([
   "seal.fill", "star.fill", "flame.fill", "leaf.fill", "bolt.fill",
   "moon.stars.fill", "sun.max.fill", "sparkles", "crown.fill", "flag.fill",
-  "book.fill", "figure.walk", "heart.fill", "globe.americas.fill", "wand.and.stars",
-  "trophy.fill", "medal.fill", "target", "checkmark.seal.fill", "lightbulb.fill"
+  "book.fill", "figure.walk", "figure.run", "heart.fill", "globe.americas.fill",
+  "wand.and.stars", "trophy.fill", "medal.fill", "target", "checkmark.seal.fill",
+  "lightbulb.fill", "pencil", "keyboard", "cup.and.saucer.fill", "fork.knife",
+  "dumbbell.fill", "brain.head.profile", "music.note", "paintbrush.fill",
 ]);
+
+const ALLOWED_RING_KINDS = new Set([
+  "bead", "pearl", "wheat", "vine", "leaf", "branch", "flower", "star", "sparkle",
+  "flame", "droplet", "ribbon", "moon", "sun", "bolt", "heart", "book", "crown",
+  "flag", "circle", "diamond", "seal",
+]);
+
+const DEFAULT_RING_KINDS = ["bead", "leaf", "vine", "pearl", "wheat", "star"];
 
 export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
@@ -439,11 +454,16 @@ async function callDeepSeekMedalDesign(
   triviaTitle?: string,
   triviaYear?: number
 ): Promise<MedalDesignResponse> {
-  const systemPrompt = `你是每日任务 App 的奖牌设计师。根据任务日与任务内容，设计一枚独特的虚拟奖牌元数据（不是图片）。
+  const systemPrompt = `你是每日任务 App 的奖牌设计师。设计一枚三层结构的虚拟奖牌（不是图片）：
+1. 外环 ringElements：6-8 个环绕装饰，kind 从 bead, pearl, wheat, vine, leaf, branch, flower, star, sparkle, flame, droplet, ribbon, moon, sun, bolt, heart, book, crown, flag, circle, diamond, seal 中选，需结合主线任务与「历史上的今天」语义（如运动用 flame/vine，学习用 book/star）。
+2. 中心圆底色 centerFillHex：与任务/大事主题呼应的纯色（#RRGGBB）。
+3. 中心物件 centerObjectSymbol：一个 SF Symbol，概括用户主线任务（如跑步 figure.run，读书 book.fill）。
+另附 palette 三色用于环饰配色。
+
 仅输出 JSON：
-{"title":"短标题≤30字","subtitle":"一句话故事≤80字","themeTags":["tag1","tag2"],"visual":{"symbolName":"SF Symbol名","palette":{"primaryHex":"#RRGGBB","secondaryHex":"#RRGGBB","accentHex":"#RRGGBB"},"pattern":"seal"}}
-symbolName 必须从以下列表选择：seal.fill, star.fill, flame.fill, leaf.fill, bolt.fill, moon.stars.fill, sun.max.fill, sparkles, crown.fill, flag.fill, book.fill, figure.walk, heart.fill, globe.americas.fill, wand.and.stars, trophy.fill, medal.fill, target, checkmark.seal.fill, lightbulb.fill
-hex 必须是 # 加 6 位十六进制。不要 markdown。`;
+{"title":"短标题≤30字","subtitle":"一句话≤80字","themeTags":["tag1"],"visual":{"ringElements":[{"kind":"wheat"},{"kind":"vine"},{"kind":"bead"},{"kind":"pearl"},{"kind":"leaf"},{"kind":"star"}],"centerFillHex":"#A3B18A","centerObjectSymbol":"leaf.fill","palette":{"primaryHex":"#588157","secondaryHex":"#A3B18A","accentHex":"#3A5A40"}}}
+centerObjectSymbol 必须从：seal.fill, star.fill, flame.fill, leaf.fill, bolt.fill, moon.stars.fill, sun.max.fill, sparkles, crown.fill, flag.fill, book.fill, figure.walk, figure.run, heart.fill, trophy.fill, lightbulb.fill, pencil, cup.and.saucer.fill, dumbbell.fill, music.note
+hex 须为 # 加 6 位十六进制。不要 markdown。`;
 
   let userContent = `任务日：${questDayKey}\n主线：${mainTask}`;
   if (sideTasks.length) {
@@ -537,6 +557,25 @@ function validateBreakdownJSON(content: string, sideCount: number): BreakdownRes
   return parsed;
 }
 
+function sanitizeRingElements(raw: unknown): MedalRingElementPayload[] {
+  if (!Array.isArray(raw)) return [];
+  const out: MedalRingElementPayload[] = [];
+  for (const item of raw) {
+    if (!item || typeof item !== "object") continue;
+    const kind = typeof (item as Record<string, unknown>).kind === "string"
+      ? ((item as Record<string, unknown>).kind as string).trim().toLowerCase()
+      : "";
+    if (!kind || !ALLOWED_RING_KINDS.has(kind)) continue;
+    out.push({ kind });
+    if (out.length >= 10) break;
+  }
+  return out;
+}
+
+function defaultRingElements(): MedalRingElementPayload[] {
+  return DEFAULT_RING_KINDS.map((kind) => ({ kind }));
+}
+
 function validateMedalDesignJSON(
   content: string,
   questDayKey: string
@@ -574,11 +613,6 @@ function validateMedalDesignJSON(
     throw new BreakdownValidationError("Invalid medal visual");
   }
   const visual = visualRaw as Record<string, unknown>;
-  const symbolName =
-    typeof visual.symbolName === "string" ? visual.symbolName.trim() : "";
-  if (!ALLOWED_SYMBOLS.has(symbolName)) {
-    throw new BreakdownValidationError("Invalid SF Symbol name");
-  }
 
   const paletteRaw = visual.palette;
   if (!paletteRaw || typeof paletteRaw !== "object") {
@@ -592,19 +626,40 @@ function validateMedalDesignJSON(
     throw new BreakdownValidationError("Invalid hex colors");
   }
 
-  const pattern =
-    typeof visual.pattern === "string" ? visual.pattern.trim().slice(0, 32) : undefined;
+  let ringElements = sanitizeRingElements(visual.ringElements);
+  let centerObjectSymbol =
+    typeof visual.centerObjectSymbol === "string"
+      ? visual.centerObjectSymbol.trim()
+      : "";
+  let centerFillHex =
+    typeof visual.centerFillHex === "string"
+      ? sanitizeHex(visual.centerFillHex) ?? ""
+      : "";
+
+  if (!centerObjectSymbol && typeof visual.symbolName === "string") {
+    centerObjectSymbol = visual.symbolName.trim();
+  }
+  if (!ALLOWED_CENTER_SYMBOLS.has(centerObjectSymbol)) {
+    throw new BreakdownValidationError("Invalid center object SF Symbol");
+  }
+  if (!centerFillHex) {
+    centerFillHex = secondaryHex;
+  }
+  if (ringElements.length < 4) {
+    ringElements = defaultRingElements();
+  }
 
   return {
     questDayKey,
-    schemaVersion: 1,
+    schemaVersion: 2,
     title,
     subtitle,
     themeTags,
     visual: {
-      symbolName,
+      ringElements,
+      centerFillHex,
+      centerObjectSymbol,
       palette: { primaryHex, secondaryHex, accentHex },
-      pattern,
     },
     source: "ai",
     createdAt: new Date().toISOString(),

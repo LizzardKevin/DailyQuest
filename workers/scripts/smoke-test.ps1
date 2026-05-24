@@ -33,7 +33,7 @@ $medal1Body = @{
     forceRegenerate  = $false
 } | ConvertTo-Json -Compress
 $medal1 = Invoke-RestMethod -Uri "$base/v1/medal/design" -Method POST -Headers $headers -Body $medal1Body
-Write-Host "OK: title=$($medal1.title) symbol=$($medal1.visual.symbolName) source=$($medal1.source)"
+Write-Host "OK: title=$($medal1.title) center=$($medal1.visual.centerObjectSymbol) ring=$($medal1.visual.ringElements.Count) source=$($medal1.source)"
 
 Write-Host "`n[4/5] POST /v1/medal/design (cached)" -ForegroundColor Yellow
 $medal2 = Invoke-RestMethod -Uri "$base/v1/medal/design" -Method POST -Headers $headers -Body $medal1Body
@@ -48,8 +48,8 @@ $medal3Body = @{
     forceRegenerate  = $true
 } | ConvertTo-Json -Compress
 $medal3 = Invoke-RestMethod -Uri "$base/v1/medal/design" -Method POST -Headers $headers -Body $medal3Body
-Write-Host "OK: title=$($medal3.title) symbol=$($medal3.visual.symbolName)"
-if (($medal1.title -eq $medal3.title) -and ($medal1.visual.symbolName -eq $medal3.visual.symbolName)) {
+Write-Host "OK: title=$($medal3.title) center=$($medal3.visual.centerObjectSymbol)"
+if (($medal1.title -eq $medal3.title) -and ($medal1.visual.centerObjectSymbol -eq $medal3.visual.centerObjectSymbol)) {
     Write-Host "WARN: regenerate matched first design (AI coincidence possible)" -ForegroundColor DarkYellow
 } else {
     Write-Host "OK: regenerate differed from first claim"

@@ -62,6 +62,7 @@
 		B10000000000000000000058 /* ThemePalette.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000058 /* ThemePalette.swift */; };
 		B10000000000000000000059 /* AppearanceSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000059 /* AppearanceSettings.swift */; };
 		B10000000000000000000060 /* AppearanceSettingsSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000060 /* AppearanceSettingsSection.swift */; };
+		B10000000000000000000061 /* MedalRingCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000061 /* MedalRingCatalog.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -122,6 +123,7 @@
 		F10000000000000000000058 /* ThemePalette.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemePalette.swift; sourceTree = "<group>"; };
 		F10000000000000000000059 /* AppearanceSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppearanceSettings.swift; sourceTree = "<group>"; };
 		F10000000000000000000060 /* AppearanceSettingsSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppearanceSettingsSection.swift; sourceTree = "<group>"; };
+		F10000000000000000000061 /* MedalRingCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MedalRingCatalog.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -257,6 +259,7 @@
 			isa = PBXGroup;
 			children = (
 				F10000000000000000000049 /* MedalDesign.swift */,
+				F10000000000000000000061 /* MedalRingCatalog.swift */,
 				F10000000000000000000050 /* MedalDesignProviding.swift */,
 			);
 			path = Medal;
@@ -482,6 +485,7 @@
 				B10000000000000000000058 /* ThemePalette.swift in Sources */,
 				B10000000000000000000059 /* AppearanceSettings.swift in Sources */,
 				B10000000000000000000060 /* AppearanceSettingsSection.swift in Sources */,
+				B10000000000000000000061 /* MedalRingCatalog.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
