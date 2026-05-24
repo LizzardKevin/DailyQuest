@@ -57,6 +57,9 @@ struct TodayTabRootView: View {
     private func reload() {
         context.processPendingChanges()
         todayPlan = try? repository.plan(for: .now, in: context)
+        if let plan = todayPlan {
+            _ = plan.mainTask?.stages.count
+        }
     }
 
     private func dismissTabsHint() {

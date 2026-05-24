@@ -5,8 +5,9 @@ import SwiftData
 @Observable
 final class CalendarViewModel {
     var displayedMonth: Date = .now
-    var statusMap: [Date: DayMedalStatus] = [:]
-    var designMap: [Date: MedalDesign] = [:]
+    /// 任务日键 `yyyy-MM-dd`，避免 `Date` 键重复或时区不一致导致崩溃。
+    var statusMap: [String: DayMedalStatus] = [:]
+    var designMap: [String: MedalDesign] = [:]
     var isLoading = false
 
     private let repository: DailyPlanRepository = LocalDailyPlanRepository()
@@ -28,11 +29,17 @@ final class CalendarViewModel {
         defer { isLoading = false }
         do {
             let plans = try repository.plans(in: displayedMonth, context: context)
-            statusMap = Dictionary(uniqueKeysWithValues: plans.map { ($0.date, DayMedalStatus.from(plan: $0)) })
-            designMap = Dictionary(uniqueKeysWithValues: plans.compactMap { plan in
-                guard let design = MedalDesignCodec.decode(plan.medalDesignJSON) else { return nil }
-                return (plan.date, design)
-            })
+            var nextStatus: [String: DayMedalStatus] = [:]
+            var nextDesign: [String: MedalDesign] = [:]
+            for plan in plans {
+                let key = QuestDayCalendar.questDayKey(for: plan.date)
+                nextStatus[key] = DayMedalStatus.from(plan: plan)
+                if let design = MedalDesignCodec.decode(plan.medalDesignJSON) {
+                    nextDesign[key] = design
+                }
+            }
+            statusMap = nextStatus
+            designMap = nextDesign
         } catch {
             statusMap = [:]
             designMap = [:]
@@ -52,16 +59,19 @@ final class CalendarViewModel {
     }
 
     func status(for date: Date) -> DayMedalStatus {
-        let day = DateHelpers.questDayAnchor(forCalendarDay: date)
-        return statusMap[day] ?? .none
+        statusMap[questDayKey(forCalendarDay: date)] ?? .none
     }
 
     func design(for date: Date) -> MedalDesign? {
-        let day = DateHelpers.questDayAnchor(forCalendarDay: date)
-        return designMap[day]
+        designMap[questDayKey(forCalendarDay: date)]
     }
 
     func plan(for date: Date, context: ModelContext) -> DailyPlan? {
         try? repository.plan(forCalendarDay: date, in: context)
+    }
+
+    private func questDayKey(forCalendarDay date: Date) -> String {
+        let anchor = DateHelpers.questDayAnchor(forCalendarDay: date)
+        return QuestDayCalendar.questDayKey(for: anchor)
     }
 }
