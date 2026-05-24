@@ -147,12 +147,12 @@ struct SettingsTodayQuestSection: View {
                 sideTexts: trimmedSides,
                 breakdown: breakdown
             )
-            try repository.save(plan, context: context)
-            try await MedalDesignService.attachDesign(to: plan, forceRegenerate: true, context: context)
+            let savedPlan = try repository.save(plan, context: context)
+            try await MedalDesignService.attachDesign(to: savedPlan, forceRegenerate: true, context: context)
             message = "今日任务已更新并重置进度"
             showEditor = false
             LightPromptStore.markSeen(.settingsModify)
-            AppNotificationPoster.planDidChange()
+            AppNotificationPoster.planDidChange(planID: savedPlan.persistentModelID)
         } catch {
             message = error.localizedDescription
             AppNotificationPoster.planDidChange()

@@ -7,7 +7,8 @@ protocol DailyPlanRepository {
     func plans(in month: Date, context: ModelContext) throws -> [DailyPlan]
     func medalStatuses(in month: Date, context: ModelContext) throws -> [Date: DayMedalStatus]
     func hasPlanForCurrentQuestDay(in context: ModelContext) throws -> Bool
-    func save(_ plan: DailyPlan, context: ModelContext) throws
+    @discardableResult
+    func save(_ plan: DailyPlan, context: ModelContext) throws -> DailyPlan
     func delete(_ plan: DailyPlan, context: ModelContext) throws
 }
 
@@ -51,8 +52,8 @@ struct LocalDailyPlanRepository: DailyPlanRepository {
         return existing.hasValidQuestContent
     }
 
-    /// Upsert by quest day — replaces all rows for that quest day, then inserts one plan.
-    func save(_ newPlan: DailyPlan, context: ModelContext) throws {
+    @discardableResult
+    func save(_ newPlan: DailyPlan, context: ModelContext) throws -> DailyPlan {
         let day = DateHelpers.startOfDay(newPlan.date)
         newPlan.date = day
         newPlan.updatedAt = .now
@@ -61,10 +62,18 @@ struct LocalDailyPlanRepository: DailyPlanRepository {
             throw DailyPlanSaveError.invalidContent
         }
 
-        try deletePlans(on: day, keeping: nil, in: context)
-        context.insert(newPlan)
+        try deletePlans(on: day, in: context)
+        insertPlanGraph(newPlan, in: context)
         try context.save()
         context.processPendingChanges()
+
+        if let verified = try fetchBestPlan(on: day, in: context), verified.hasValidQuestContent {
+            return verified
+        }
+        if newPlan.hasValidQuestContent {
+            return newPlan
+        }
+        throw DailyPlanSaveError.invalidContent
     }
 
     func delete(_ plan: DailyPlan, context: ModelContext) throws {
@@ -72,12 +81,31 @@ struct LocalDailyPlanRepository: DailyPlanRepository {
         try context.save()
     }
 
+    private func insertPlanGraph(_ plan: DailyPlan, in context: ModelContext) {
+        if let main = plan.mainTask {
+            for stage in main.stages {
+                context.insert(stage)
+            }
+            context.insert(main)
+        }
+        for side in plan.sideTasks {
+            for stage in side.stages {
+                context.insert(stage)
+            }
+            context.insert(side)
+        }
+        if let medal = plan.medal {
+            context.insert(medal)
+        }
+        context.insert(plan)
+    }
+
     private func fetchBestPlan(on day: Date, in context: ModelContext) throws -> DailyPlan? {
         let candidates = try fetchPlans(on: day, in: context)
         return Self.pickBest(from: candidates)
     }
 
-    private func fetchPlans(on day: Date, in context: ModelContext) throws -> [DailyPlan] {
+    private func fetchPlans(on day: Date, in context: ModelContext, prefetchRelationships: Bool = true) throws -> [DailyPlan] {
         let dayStart = day
         let dayEnd = DateHelpers.calendar.date(byAdding: .day, value: 1, to: dayStart) ?? dayStart
         var descriptor = FetchDescriptor<DailyPlan>(
@@ -86,33 +114,34 @@ struct LocalDailyPlanRepository: DailyPlanRepository {
             },
             sortBy: [SortDescriptor(\.updatedAt, order: .reverse)]
         )
-        descriptor.relationshipKeyPathsForPrefetching = [
-            \DailyPlan.mainTask,
-            \DailyPlan.sideTasks
-        ]
+        if prefetchRelationships {
+            descriptor.relationshipKeyPathsForPrefetching = [
+                \DailyPlan.mainTask,
+                \DailyPlan.sideTasks
+            ]
+        }
         let plans = try context.fetch(descriptor)
-        for plan in plans {
-            _ = plan.mainTask?.stages.count
-            for side in plan.sideTasks {
-                _ = side.stages.count
+        if prefetchRelationships {
+            for plan in plans {
+                _ = plan.mainTask?.stages.count
+                for side in plan.sideTasks {
+                    _ = side.stages.count
+                }
             }
         }
         return plans
     }
 
-    private func deletePlans(on day: Date, keeping: DailyPlan?, in context: ModelContext) throws {
-        let plans = try fetchPlans(on: day, in: context)
-        var deleted = false
-        for plan in plans where plan !== keeping {
+    private func deletePlans(on day: Date, in context: ModelContext) throws {
+        let plans = try fetchPlans(on: day, in: context, prefetchRelationships: false)
+        for plan in plans {
             context.delete(plan)
-            deleted = true
         }
-        if deleted {
+        if !plans.isEmpty {
             try context.save()
         }
     }
 
-    /// 同一任务日可能因历史 bug 留下多条记录，保留最新且内容完整的一条。
     static func dedupeByQuestDay(_ plans: [DailyPlan]) -> [DailyPlan] {
         let grouped = Dictionary(grouping: plans) { QuestDayCalendar.questDayKey(for: $0.date) }
         return grouped.values.compactMap { pickBest(from: $0) }
@@ -134,7 +163,7 @@ enum DailyPlanSaveError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .invalidContent:
-            return "拆解结果无效（主线阶段为空），请修改任务文案后重试"
+            return "拆解已返回，但阶段未能写入本地数据库，请重试或使用「默认阶段（调试）」"
         }
     }
 }

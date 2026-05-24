@@ -24,6 +24,7 @@ struct DailyQuestInputView: View {
     @State private var savedMainSummary = ""
     @State private var savedStageCount = 0
     @State private var savedPlanID: PersistentIdentifier?
+    @State private var showErrorAlert = false
 
     private let repository: DailyPlanRepository = LocalDailyPlanRepository()
     private let llm: TaskBreakdownProviding = BackendBreakdownClient()
@@ -44,6 +45,11 @@ struct DailyQuestInputView: View {
                 showQuestHint = !LightPromptStore.hasSeen(.questPage)
                 showReminderCard = !ReminderSettings.isConfigured
             }
+        }
+        .alert("领取失败", isPresented: $showErrorAlert) {
+            Button("好", role: .cancel) {}
+        } message: {
+            Text(errorMessage ?? "请检查网络后重试")
         }
     }
 
@@ -262,46 +268,54 @@ struct DailyQuestInputView: View {
             )
             #endif
 
-            try repository.save(plan, context: context)
-            savedPlanID = plan.persistentModelID
+            let savedPlan = try repository.save(plan, context: context)
+            savedPlanID = savedPlan.persistentModelID
 
-            try await MedalDesignService.attachDesign(
-                to: plan,
+            try? await MedalDesignService.attachDesign(
+                to: savedPlan,
                 triviaTitle: triviaTitle,
                 triviaYear: triviaYear,
                 context: context
             )
 
-            guard let design = MedalDesignService.design(for: plan) else {
-                throw MedalDesignError.network
+            guard let design = MedalDesignService.design(for: savedPlan) else {
+                confirmAndFinish()
+                return
             }
 
-            savedMainSummary = plan.mainTask?.rawText ?? trimmedMain
-            savedStageCount = plan.mainTask?.stages.count ?? 0
+            savedMainSummary = savedPlan.mainTask?.rawText ?? trimmedMain
+            savedStageCount = savedPlan.mainTask?.stages.count ?? 0
             previewDesign = design
             awaitingMedalConfirmation = true
         } catch {
             errorMessage = error.localizedDescription
             awaitingMedalConfirmation = false
+            showErrorAlert = true
         }
     }
 
     private func confirmAndFinish() {
         context.processPendingChanges()
 
+        let planID: PersistentIdentifier?
         if let savedPlanID,
            let persisted = context.model(for: savedPlanID) as? DailyPlan,
            persisted.hasValidQuestContent {
+            planID = savedPlanID
             _ = persisted.mainTask?.stages.count
-        } else if (try? repository.hasPlanForCurrentQuestDay(in: context)) != true {
-            errorMessage = "任务未能写入本地，请重新领取"
+        } else if let fallback = try? repository.plan(for: .now, in: context),
+                  fallback.hasValidQuestContent {
+            planID = fallback.persistentModelID
+        } else {
+            errorMessage = "任务未能写入本地，请重新领取或使用下方「默认阶段（调试）」"
             awaitingMedalConfirmation = false
+            showErrorAlert = true
             return
         }
 
         try? context.save()
         LightPromptStore.markSeen(.questPage)
-        AppNotificationPoster.planDidChange()
+        AppNotificationPoster.planDidChange(planID: planID)
         awaitingMedalConfirmation = false
         withAnimation(.easeInOut(duration: 0.35)) {
             onCompleted()
