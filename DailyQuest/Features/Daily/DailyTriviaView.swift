@@ -48,7 +48,12 @@ struct DailyTriviaView: View {
             .padding(20)
         }
         .task { await loadEvents() }
-        .onAppear { showSwipeHint = !LightPromptStore.hasSeen(.dailySwipe) }
+        .onAppear {
+            showSwipeHint = !LightPromptStore.hasSeen(.dailySwipe)
+            if events.isEmpty, !isLoading {
+                Task { await loadEvents() }
+            }
+        }
     }
 
     private var headerTitle: String {
@@ -78,9 +83,18 @@ struct DailyTriviaView: View {
     }
 
     private func loadEvents() async {
-        isLoading = true
-        defer { isLoading = false }
-        events = await OnThisDayService.shared.events()
+        if events.isEmpty {
+            let local = await OnThisDayService.shared.fallbackEvents()
+            if !local.isEmpty {
+                events = local
+            }
+        }
+        isLoading = events.isEmpty
+        let loaded = await OnThisDayService.shared.events()
+        if !loaded.isEmpty {
+            events = loaded
+        }
+        isLoading = false
     }
 
     private func dismissSwipeHint() {

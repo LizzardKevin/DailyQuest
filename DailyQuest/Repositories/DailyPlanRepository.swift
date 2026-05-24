@@ -52,11 +52,12 @@ struct LocalDailyPlanRepository: DailyPlanRepository {
     }
 
     func hasPlanForCurrentQuestDay(in context: ModelContext) throws -> Bool {
+        context.processPendingChanges()
         guard let existing = try plan(for: .now, in: context) else { return false }
         return existing.hasValidQuestContent
     }
 
-    /// Upsert by calendar day — replaces existing plan for the same date if present.
+    /// Upsert by quest day — replaces existing plan for the same date if present.
     func save(_ newPlan: DailyPlan, context: ModelContext) throws {
         let day = DateHelpers.startOfDay(newPlan.date)
         newPlan.date = day
@@ -66,20 +67,9 @@ struct LocalDailyPlanRepository: DailyPlanRepository {
             context.delete(existing)
         }
 
-        if let main = newPlan.mainTask {
-            context.insert(main)
-            for stage in main.stages {
-                context.insert(stage)
-            }
-        }
-        for side in newPlan.sideTasks {
-            context.insert(side)
-            for stage in side.stages {
-                context.insert(stage)
-            }
-        }
         context.insert(newPlan)
         try context.save()
+        context.processPendingChanges()
     }
 
     func delete(_ plan: DailyPlan, context: ModelContext) throws {

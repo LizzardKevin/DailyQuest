@@ -55,6 +55,7 @@ struct TodayTabRootView: View {
     }
 
     private func reload() {
+        context.processPendingChanges()
         todayPlan = try? repository.plan(for: .now, in: context)
     }
 

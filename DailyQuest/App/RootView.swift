@@ -26,13 +26,22 @@ struct RootView: View {
         .dailyQuestAppearance()
         .onAppear { refreshFlowState() }
         .onReceive(NotificationCenter.default.publisher(for: .dailyPlanDidChange)) { _ in
-            refreshFlowState()
+            dismissDailyFlowIfPlanExists()
         }
     }
 
+    /// 冷启动：无今日计划则展示每日流程。
     private func refreshFlowState() {
+        context.processPendingChanges()
         let hasPlan = (try? repository.hasPlanForCurrentQuestDay(in: context)) ?? false
         showDailyFlow = !hasPlan
+    }
+
+    /// 计划保存后：只关闭每日流程，避免因 SwiftData 写入延迟再次弹出流程页。
+    private func dismissDailyFlowIfPlanExists() {
+        context.processPendingChanges()
+        guard (try? repository.hasPlanForCurrentQuestDay(in: context)) ?? false else { return }
+        showDailyFlow = false
     }
 }
 

@@ -30,22 +30,31 @@ actor OnThisDayService {
         self.session = session
     }
 
+    /// 本地 fallback，不访问网络（无 VPN 时每日趣闻页应立即有内容）。
+    func fallbackEvents(for date: Date = .now, maxCount: Int = 4) -> [OnThisDayEvent] {
+        let cal = Calendar.current
+        let month = cal.component(.month, from: date)
+        let day = cal.component(.day, from: date)
+        return loadFallback(month: month, day: day, maxCount: maxCount)
+    }
+
     func events(for date: Date = .now, maxCount: Int = 4) async -> [OnThisDayEvent] {
         let cal = Calendar.current
         let month = cal.component(.month, from: date)
         let day = cal.component(.day, from: date)
         let cacheKey = String(format: "%02d-%02d", month, day)
 
-        if let cached = memoryCache[cacheKey] {
+        if let cached = memoryCache[cacheKey], !cached.isEmpty {
             return cached
         }
+
+        let local = loadFallback(month: month, day: day, maxCount: maxCount)
 
         if let remote = await fetchWikimedia(month: month, day: day, maxCount: maxCount), !remote.isEmpty {
             memoryCache[cacheKey] = remote
             return remote
         }
 
-        let local = loadFallback(month: month, day: day, maxCount: maxCount)
         memoryCache[cacheKey] = local
         return local
     }
@@ -57,7 +66,7 @@ actor OnThisDayService {
         }
 
         var request = URLRequest(url: url)
-        request.timeoutInterval = 12
+        request.timeoutInterval = 5
         request.setValue(
             "DailyQuest/2.0 (iOS; daily-quest-app)",
             forHTTPHeaderField: "User-Agent"

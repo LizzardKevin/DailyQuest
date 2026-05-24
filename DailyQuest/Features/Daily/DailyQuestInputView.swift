@@ -238,6 +238,7 @@ struct DailyQuestInputView: View {
             previewDesign = MedalDesignService.design(for: plan)
             LightPromptStore.markSeen(.questPage)
             AppNotificationPoster.planDidChange()
+            try? context.save()
             onCompleted()
         } catch {
             errorMessage = error.localizedDescription
