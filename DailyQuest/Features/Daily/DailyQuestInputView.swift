@@ -263,24 +263,19 @@ struct DailyQuestInputView: View {
 
             try repository.save(plan, context: context)
 
-            guard let persisted = try repository.plan(for: .now, in: context),
-                  persisted.hasValidQuestContent else {
-                throw DailyPlanSaveError.invalidContent
-            }
-
             try await MedalDesignService.attachDesign(
-                to: persisted,
+                to: plan,
                 triviaTitle: triviaTitle,
                 triviaYear: triviaYear,
                 context: context
             )
 
-            guard let design = MedalDesignService.design(for: persisted) else {
+            guard let design = MedalDesignService.design(for: plan) else {
                 throw MedalDesignError.network
             }
 
-            savedMainSummary = persisted.mainTask?.rawText ?? trimmedMain
-            savedStageCount = persisted.mainTask?.stages.count ?? 0
+            savedMainSummary = plan.mainTask?.rawText ?? trimmedMain
+            savedStageCount = plan.mainTask?.stages.count ?? 0
             previewDesign = design
             awaitingMedalConfirmation = true
         } catch {

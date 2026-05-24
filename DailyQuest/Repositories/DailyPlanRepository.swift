@@ -23,10 +23,24 @@ struct LocalDailyPlanRepository: DailyPlanRepository {
     }
 
     private func fetchPlan(on day: Date, in context: ModelContext) throws -> DailyPlan? {
-        let descriptor = FetchDescriptor<DailyPlan>(
-            predicate: #Predicate { $0.date == day }
+        let dayStart = day
+        let dayEnd = DateHelpers.calendar.date(byAdding: .day, value: 1, to: dayStart) ?? dayStart
+        var descriptor = FetchDescriptor<DailyPlan>(
+            predicate: #Predicate { plan in
+                plan.date >= dayStart && plan.date < dayEnd
+            },
+            sortBy: [SortDescriptor(\.date, order: .reverse)]
         )
-        return try context.fetch(descriptor).first
+        descriptor.relationshipKeyPathsForPrefetching = [
+            \DailyPlan.mainTask,
+            \DailyPlan.sideTasks
+        ]
+        guard let plan = try context.fetch(descriptor).first else { return nil }
+        _ = plan.mainTask?.stages.count
+        for side in plan.sideTasks {
+            _ = side.stages.count
+        }
+        return plan
     }
 
     func plans(in month: Date, context: ModelContext) throws -> [DailyPlan] {
@@ -63,37 +77,18 @@ struct LocalDailyPlanRepository: DailyPlanRepository {
         newPlan.date = day
         newPlan.updatedAt = .now
 
+        guard newPlan.hasValidQuestContent else {
+            throw DailyPlanSaveError.invalidContent
+        }
+
         if let existing = try plan(for: day, in: context), existing !== newPlan {
             context.delete(existing)
             try context.save()
         }
 
-        insertTaskGraph(for: newPlan, in: context)
         context.insert(newPlan)
         try context.save()
         context.processPendingChanges()
-
-        guard newPlan.hasValidQuestContent else {
-            throw DailyPlanSaveError.invalidContent
-        }
-    }
-
-    private func insertTaskGraph(for plan: DailyPlan, in context: ModelContext) {
-        if let main = plan.mainTask {
-            context.insert(main)
-            for stage in main.stages {
-                context.insert(stage)
-            }
-        }
-        for side in plan.sideTasks {
-            context.insert(side)
-            for stage in side.stages {
-                context.insert(stage)
-            }
-        }
-        if let medal = plan.medal {
-            context.insert(medal)
-        }
     }
 
     func delete(_ plan: DailyPlan, context: ModelContext) throws {
@@ -108,7 +103,7 @@ enum DailyPlanSaveError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .invalidContent:
-            return "任务保存失败：拆解结果未写入本地，请重试"
+            return "拆解结果无效（主线阶段为空），请修改任务文案后重试"
         }
     }
 }
