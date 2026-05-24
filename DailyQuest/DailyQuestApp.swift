@@ -5,6 +5,8 @@ import SwiftData
 struct DailyQuestApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
 
+    private let modelContainer = ModelContainerFactory.make()
+
     var body: some Scene {
         WindowGroup {
             RootView()
@@ -13,12 +15,7 @@ struct DailyQuestApp: App {
                     UserDefaults.standard.set(mode.rawValue, forKey: "dailyquest.appearanceMode")
                 }
         }
-        .modelContainer(for: [
-            DailyPlan.self,
-            TaskItem.self,
-            TaskStage.self,
-            DailyMedal.self
-        ])
+        .modelContainer(modelContainer)
     }
 }
 

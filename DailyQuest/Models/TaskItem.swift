@@ -6,12 +6,8 @@ final class TaskItem {
     var kindRaw: String
     var rawText: String
 
-    @Relationship(deleteRule: .cascade, inverse: \TaskStage.task)
+    @Relationship(deleteRule: .cascade)
     var stages: [TaskStage]
-
-    var planForMain: DailyPlan?
-
-    var planForSide: DailyPlan?
 
     var kind: TaskItemKind {
         get { TaskItemKind(rawValue: kindRaw) ?? .main }

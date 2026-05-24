@@ -63,6 +63,7 @@
 		B10000000000000000000059 /* AppearanceSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000059 /* AppearanceSettings.swift */; };
 		B10000000000000000000060 /* AppearanceSettingsSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000060 /* AppearanceSettingsSection.swift */; };
 		B10000000000000000000061 /* MedalRingCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000061 /* MedalRingCatalog.swift */; };
+		B10000000000000000000062 /* ModelContainerFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000062 /* ModelContainerFactory.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -124,6 +125,7 @@
 		F10000000000000000000059 /* AppearanceSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppearanceSettings.swift; sourceTree = "<group>"; };
 		F10000000000000000000060 /* AppearanceSettingsSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppearanceSettingsSection.swift; sourceTree = "<group>"; };
 		F10000000000000000000061 /* MedalRingCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MedalRingCatalog.swift; sourceTree = "<group>"; };
+		F10000000000000000000062 /* ModelContainerFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelContainerFactory.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -153,6 +155,7 @@
 				G10000000000000000000020 /* Domain */,
 				G10000000000000000000022 /* MedalKit */,
 				G10000000000000000000005 /* Models */,
+				G10000000000000000000025 /* Data */,
 				G10000000000000000000006 /* Repositories */,
 				G10000000000000000000007 /* Services */,
 				G10000000000000000000008 /* Design */,
@@ -191,6 +194,14 @@
 				F10000000000000000000008 /* DailyPlan.swift */,
 			);
 			path = Models;
+			sourceTree = "<group>";
+		};
+		G10000000000000000000025 /* Data */ = {
+			isa = PBXGroup;
+			children = (
+				F10000000000000000000062 /* ModelContainerFactory.swift */,
+			);
+			path = Data;
 			sourceTree = "<group>";
 		};
 		G10000000000000000000006 /* Repositories */ = {
@@ -486,6 +497,7 @@
 				B10000000000000000000059 /* AppearanceSettings.swift in Sources */,
 				B10000000000000000000060 /* AppearanceSettingsSection.swift in Sources */,
 				B10000000000000000000061 /* MedalRingCatalog.swift in Sources */,
+				B10000000000000000000062 /* ModelContainerFactory.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

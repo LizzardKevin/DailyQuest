@@ -62,7 +62,6 @@ struct LocalDailyPlanRepository: DailyPlanRepository {
         }
 
         try deletePlans(on: day, keeping: nil, in: context)
-        DailyPlanRelationshipWire.wire(newPlan)
         context.insert(newPlan)
         try context.save()
         context.processPendingChanges()

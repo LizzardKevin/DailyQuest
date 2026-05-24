@@ -24,7 +24,6 @@ enum PreviewData {
             TaskStage(order: 1, title: "跑步20分钟")
         ])
         let plan = DailyPlan(date: .now, mainTask: main, sideTasks: [side])
-        DailyPlanRelationshipWire.wire(plan)
         context.insert(plan)
         return container
     }()

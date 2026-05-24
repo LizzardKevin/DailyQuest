@@ -5,7 +5,6 @@ struct TodayTabRootView: View {
     @Environment(\.modelContext) private var context
     @Query(sort: \DailyPlan.updatedAt, order: .reverse) private var allPlans: [DailyPlan]
     @State private var showTabsHint = false
-    @State private var refreshToken = UUID()
 
     private var todayPlan: DailyPlan? {
         let key = QuestDayCalendar.questDayKey()
@@ -20,14 +19,14 @@ struct TodayTabRootView: View {
 
                 Group {
                     if let plan = todayPlan, plan.hasValidQuestContent {
-                        TodayBoardView(plan: plan, onPlanUpdated: { bumpRefresh() })
+                        TodayBoardView(plan: plan, onPlanUpdated: { touchPlan(plan) })
                             .id(plan.persistentModelID)
                     } else {
                         DailyQuestInputView(
                             title: "今日任务",
                             subtitle: "写下今日主线与支线，领取任务或由默认阶段开始",
                             showFlowHints: false,
-                            onCompleted: { bumpRefresh() }
+                            onCompleted: { touchContext() }
                         )
                     }
                 }
@@ -51,22 +50,22 @@ struct TodayTabRootView: View {
                 }
             }
             .onAppear {
-                bumpRefresh()
+                touchContext()
                 showTabsHint = !LightPromptStore.hasSeen(.mainTabs)
             }
             .onReceive(NotificationCenter.default.publisher(for: .dailyPlanDidChange)) { _ in
-                bumpRefresh()
+                touchContext()
             }
         }
-        .id(refreshToken)
     }
 
-    private func bumpRefresh() {
+    private func touchContext() {
         context.processPendingChanges()
-        if let plan = todayPlan {
-            _ = plan.mainTask?.stages.count
-        }
-        refreshToken = UUID()
+    }
+
+    private func touchPlan(_ plan: DailyPlan) {
+        context.processPendingChanges()
+        _ = plan.mainTask?.stages.count
     }
 
     private func dismissTabsHint() {
