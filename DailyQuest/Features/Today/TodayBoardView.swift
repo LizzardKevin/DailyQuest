@@ -105,7 +105,7 @@ struct TodayBoardView: View {
 
     private func medalBanner(medal: DailyMedal) -> some View {
         let design = draftDesign
-        GlassCard {
+        return GlassCard {
             HStack(spacing: 16) {
                 MedalView(
                     status: medal.hasHolographic ? .holographic : .base,

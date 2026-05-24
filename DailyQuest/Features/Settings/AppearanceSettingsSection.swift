@@ -28,7 +28,7 @@ struct AppearanceSettingsSection: View {
         }
         .onChange(of: modeRaw) { _, newValue in
             if let mode = AppearanceMode(rawValue: newValue) {
-                AppearanceSettings.save(mode)
+                AppearanceMode.save(mode)
             }
         }
     }

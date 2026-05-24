@@ -9,7 +9,7 @@ struct DailyQuestApp: App {
         WindowGroup {
             RootView()
                 .onAppear {
-                    let mode = AppearanceSettings.load()
+                    let mode = AppearanceMode.load()
                     UserDefaults.standard.set(mode.rawValue, forKey: "dailyquest.appearanceMode")
                 }
         }
