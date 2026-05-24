@@ -25,6 +25,8 @@ struct DailyQuestInputView: View {
     @State private var savedStageCount = 0
     @State private var savedPlanID: PersistentIdentifier?
     @State private var showErrorAlert = false
+    @State private var clarificationPrompt: BreakdownClarificationPrompt?
+    @State private var clarificationAnswer = ""
 
     private let repository: DailyPlanRepository = LocalDailyPlanRepository()
     private let llm: TaskBreakdownProviding = BackendBreakdownClient()
@@ -71,6 +73,10 @@ struct DailyQuestInputView: View {
         mainTaskCard
         sideTasksCard
 
+        if let clarificationPrompt {
+            clarificationCard(prompt: clarificationPrompt)
+        }
+
         if let errorMessage {
             Text(errorMessage)
                 .font(AppTheme.caption(12))
@@ -78,12 +84,12 @@ struct DailyQuestInputView: View {
                 .padding(.horizontal, 4)
         }
 
-        PrimaryButton(isLoading ? "正在拆解…" : "领取任务", icon: "flag.fill") {
+        PrimaryButton(submitButtonTitle, icon: submitButtonIcon) {
             guard !isLoading else { return }
             isLoading = true
             Task { await submit() }
         }
-        .disabled(mainText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isLoading)
+        .disabled(isSubmitDisabled)
         .overlay {
             if isLoading {
                 ProgressView().tint(.white)
@@ -171,6 +177,44 @@ struct DailyQuestInputView: View {
         }
     }
 
+    private var submitButtonTitle: String {
+        if isLoading {
+            return clarificationPrompt == nil ? "正在拆解…" : "正在完成拆解…"
+        }
+        return clarificationPrompt == nil ? "领取任务" : "提交补充说明"
+    }
+
+    private var submitButtonIcon: String {
+        clarificationPrompt == nil ? "flag.fill" : "arrow.right.circle.fill"
+    }
+
+    private var isSubmitDisabled: Bool {
+        if isLoading { return true }
+        let mainEmpty = mainText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        if clarificationPrompt != nil {
+            return mainEmpty || clarificationAnswer.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        }
+        return mainEmpty
+    }
+
+    private func clarificationCard(prompt: BreakdownClarificationPrompt) -> some View {
+        GlassCard {
+            VStack(alignment: .leading, spacing: 12) {
+                Label("需要补充一点信息", systemImage: "questionmark.circle")
+                    .font(AppTheme.caption())
+                    .foregroundStyle(AppTheme.mainAccent)
+
+                Text(prompt.question)
+                    .font(AppTheme.body(15))
+                    .foregroundStyle(AppTheme.ink)
+
+                TextField("补充说明（仅此一次）", text: $clarificationAnswer, axis: .vertical)
+                    .font(AppTheme.body())
+                    .lineLimit(2...4)
+            }
+        }
+    }
+
     private var sideTasksCard: some View {
         GlassCard {
             VStack(alignment: .leading, spacing: 12) {
@@ -236,38 +280,69 @@ struct DailyQuestInputView: View {
         defer { isLoading = false }
 
         do {
-            let breakdown = try await llm.breakdown(mainTask: trimmedMain, sideTasks: trimmedSides)
-            let plan = try PlanBuilder.makePlan(
-                date: .now,
-                mainText: trimmedMain,
-                sideTexts: trimmedSides,
-                breakdown: breakdown
+            let clarificationAttempt = clarificationPrompt == nil ? 0 : 1
+            let answer = clarificationPrompt == nil
+                ? nil
+                : clarificationAnswer.trimmingCharacters(in: .whitespacesAndNewlines)
+
+            let result = try await llm.breakdown(
+                mainTask: trimmedMain,
+                sideTasks: trimmedSides,
+                clarificationAnswer: answer,
+                clarificationAttempt: clarificationAttempt
             )
 
-            let savedPlan = try repository.save(plan, context: context)
-            savedPlanID = savedPlan.persistentModelID
-
-            try? await MedalDesignService.attachDesign(
-                to: savedPlan,
-                triviaTitle: triviaTitle,
-                triviaYear: triviaYear,
-                context: context
-            )
-
-            guard let design = MedalDesignService.design(for: savedPlan) else {
-                confirmAndFinish()
+            switch result {
+            case .needsClarification(let prompt):
+                clarificationPrompt = prompt
                 return
+            case .ready(let breakdown):
+                clarificationPrompt = nil
+                clarificationAnswer = ""
+                try await finishClaim(
+                    breakdown: breakdown,
+                    trimmedMain: trimmedMain,
+                    trimmedSides: trimmedSides
+                )
             }
-
-            savedMainSummary = savedPlan.mainTask?.rawText ?? trimmedMain
-            savedStageCount = savedPlan.mainTask?.stages.count ?? 0
-            previewDesign = design
-            awaitingMedalConfirmation = true
         } catch {
             errorMessage = error.localizedDescription
             awaitingMedalConfirmation = false
             showErrorAlert = true
         }
+    }
+
+    private func finishClaim(
+        breakdown: TaskBreakdownResponse,
+        trimmedMain: String,
+        trimmedSides: [String]
+    ) async throws {
+        let plan = try PlanBuilder.makePlan(
+            date: .now,
+            mainText: trimmedMain,
+            sideTexts: trimmedSides,
+            breakdown: breakdown
+        )
+
+        let savedPlan = try repository.save(plan, context: context)
+        savedPlanID = savedPlan.persistentModelID
+
+        try? await MedalDesignService.attachDesign(
+            to: savedPlan,
+            triviaTitle: triviaTitle,
+            triviaYear: triviaYear,
+            context: context
+        )
+
+        guard let design = MedalDesignService.design(for: savedPlan) else {
+            confirmAndFinish()
+            return
+        }
+
+        savedMainSummary = savedPlan.mainTask?.rawText ?? trimmedMain
+        savedStageCount = savedPlan.mainTask?.stages.count ?? 0
+        previewDesign = design
+        awaitingMedalConfirmation = true
     }
 
     private func confirmAndFinish() {
@@ -276,14 +351,16 @@ struct DailyQuestInputView: View {
         let planID: PersistentIdentifier?
         if let savedPlanID,
            let persisted = context.model(for: savedPlanID) as? DailyPlan,
-           persisted.hasValidQuestContent {
+           persisted.hasValidQuestContent,
+           QuestDayCalendar.isCurrentQuestDay(persisted.date) {
             planID = savedPlanID
             _ = persisted.mainTask?.stages.count
         } else if let fallback = try? repository.plan(for: .now, in: context),
-                  fallback.hasValidQuestContent {
+                  fallback.hasValidQuestContent,
+                  QuestDayCalendar.isCurrentQuestDay(fallback.date) {
             planID = fallback.persistentModelID
         } else {
-            errorMessage = "任务未能写入本地，请重新领取"
+            errorMessage = "任务未能写入本地或任务日不匹配，请重新领取"
             awaitingMedalConfirmation = false
             showErrorAlert = true
             return

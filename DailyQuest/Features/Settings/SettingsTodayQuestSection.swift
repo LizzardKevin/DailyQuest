@@ -140,7 +140,15 @@ struct SettingsTodayQuestSection: View {
         defer { isLoading = false }
 
         do {
-            let breakdown = try await llm.breakdown(mainTask: trimmedMain, sideTasks: trimmedSides)
+            let result = try await llm.breakdown(
+                mainTask: trimmedMain,
+                sideTasks: trimmedSides,
+                clarificationAnswer: nil,
+                clarificationAttempt: 1
+            )
+            guard case .ready(let breakdown) = result else {
+                throw BreakdownValidationError.apiError("任务描述不够具体，请写得更清晰后重试")
+            }
             let plan = try PlanBuilder.makePlan(
                 date: .now,
                 mainText: trimmedMain,

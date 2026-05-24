@@ -14,7 +14,17 @@ export interface Env {
 interface BreakdownRequest {
   mainTask: string;
   sideTasks?: string[];
+  clarificationAnswer?: string;
+  clarificationAttempt?: number;
 }
+
+type BreakdownEnvelope =
+  | ({ type: "breakdown" } & BreakdownResponse)
+  | {
+      type: "clarification_required";
+      question: string;
+      attempt: number;
+    };
 
 interface MedalDesignRequest {
   mainTask: string;
@@ -148,7 +158,21 @@ function parseBreakdownBody(body: unknown): BreakdownRequest | null {
   const sideTasks = (record.sideTasks ?? []).filter(
     (item): item is string => typeof item === "string"
   );
-  return { mainTask: record.mainTask, sideTasks };
+  const clarificationAnswer =
+    typeof record.clarificationAnswer === "string"
+      ? record.clarificationAnswer.trim()
+      : undefined;
+  const clarificationAttempt =
+    typeof record.clarificationAttempt === "number" &&
+    Number.isFinite(record.clarificationAttempt)
+      ? Math.max(0, Math.floor(record.clarificationAttempt))
+      : 0;
+  return {
+    mainTask: record.mainTask,
+    sideTasks,
+    clarificationAnswer: clarificationAnswer || undefined,
+    clarificationAttempt,
+  };
 }
 
 function parseMedalDesignBody(body: unknown): MedalDesignRequest | null {
@@ -221,7 +245,7 @@ async function handleBreakdown(
     return json({ error: "mainTask is required (max 500 chars)" }, 400);
   }
 
-  const sideTasks = body.sideTasks
+  const sideTasks = (body.sideTasks ?? [])
     .map((s) => s.trim())
     .filter(Boolean)
     .slice(0, 2);
@@ -253,16 +277,23 @@ async function handleBreakdown(
     return json({ error: "Server misconfigured" }, 503);
   }
 
+  const clarificationAttempt = body.clarificationAttempt ?? 0;
+  const clarificationAnswer = body.clarificationAnswer;
+
   try {
-    const breakdown = await callDeepSeekBreakdown(
+    const envelope = await callDeepSeekBreakdown(
       env.DEEPSEEK_API_KEY,
       mainTask,
-      sideTasks
+      sideTasks,
+      clarificationAnswer,
+      clarificationAttempt
     );
-    if (!isUnlimitedRateLimit(maxPerDay)) {
-      ctx.waitUntil(commitRateLimit("breakdown", deviceId, questDay));
+    if (envelope.type === "breakdown") {
+      if (!isUnlimitedRateLimit(maxPerDay)) {
+        ctx.waitUntil(commitRateLimit("breakdown", deviceId, questDay));
+      }
     }
-    return json(breakdown);
+    return json(envelope);
   } catch (err) {
     if (err instanceof BreakdownValidationError) {
       return json({ error: err.message }, 422);
@@ -425,11 +456,21 @@ function medalCacheRequest(deviceId: string, questDay: string): Request {
 async function callDeepSeekBreakdown(
   apiKey: string,
   mainTask: string,
-  sideTasks: string[]
-): Promise<BreakdownResponse> {
-  const systemPrompt = `你是任务拆解助手。将用户的主线任务拆解为2-3个可执行、可验证、按顺序的阶段；每条支线任务拆解为2-3个阶段。
-仅输出 JSON，格式如下：
-{"main":{"stages":[{"title":"阶段名","hint":"简短说明"}]},"sides":[{"stages":[{"title":"...","hint":"..."}]}]}
+  sideTasks: string[],
+  clarificationAnswer?: string,
+  clarificationAttempt = 0
+): Promise<BreakdownEnvelope> {
+  const forceFinal = clarificationAttempt >= 1;
+  const systemPrompt = forceFinal
+    ? `你是任务拆解助手。用户已补充过一次说明，你必须直接输出最终拆解，不得再次追问。
+仅输出 JSON：
+{"type":"breakdown","main":{"stages":[{"title":"阶段名","hint":"简短说明"}]},"sides":[{"stages":[{"title":"...","hint":"..."}]}]}
+sides 数组长度必须等于支线数量。每个任务的 stages 数组长度必须在 2 到 3 之间。不要输出 markdown 或其他文字。`
+    : `你是任务拆解助手。将用户的主线任务拆解为2-3个可执行、可验证、按顺序的阶段；每条支线任务拆解为2-3个阶段。
+若任务过于模糊、缺少目标/范围/完成标准，可追问用户一次（只问一个最关键的问题）；否则直接拆解。
+仅输出 JSON，二选一：
+1) 需要追问：{"type":"clarification_required","question":"一句中文追问","attempt":1}
+2) 可直接拆解：{"type":"breakdown","main":{"stages":[{"title":"阶段名","hint":"简短说明"}]},"sides":[{"stages":[{"title":"...","hint":"..."}]}]}
 sides 数组长度必须等于支线数量。每个任务的 stages 数组长度必须在 2 到 3 之间。不要输出 markdown 或其他文字。`;
 
   let userContent = `主线任务：${mainTask}`;
@@ -441,9 +482,51 @@ sides 数组长度必须等于支线数量。每个任务的 stages 数组长度
   } else {
     userContent += "\n支线任务：无";
   }
+  if (clarificationAnswer) {
+    userContent += `\n用户补充说明：${clarificationAnswer}`;
+  }
 
   const content = await deepSeekJSON(apiKey, systemPrompt, userContent);
-  return validateBreakdownJSON(content, sideTasks.length);
+  return parseBreakdownEnvelope(content, sideTasks.length, forceFinal);
+}
+
+function parseBreakdownEnvelope(
+  content: string,
+  sideCount: number,
+  forceFinal: boolean
+): BreakdownEnvelope {
+  let raw: Record<string, unknown>;
+  try {
+    raw = JSON.parse(content) as Record<string, unknown>;
+  } catch {
+    throw new BreakdownValidationError("AI returned invalid JSON");
+  }
+
+  const type = typeof raw.type === "string" ? raw.type : "breakdown";
+  if (type === "clarification_required") {
+    if (forceFinal) {
+      throw new BreakdownValidationError(
+        "任务仍不够具体，请写清目标、范围或完成标准后重试"
+      );
+    }
+    const question =
+      typeof raw.question === "string" ? raw.question.trim() : "";
+    if (!question) {
+      throw new BreakdownValidationError("AI clarification missing question");
+    }
+    const attempt =
+      typeof raw.attempt === "number" && Number.isFinite(raw.attempt)
+        ? Math.max(1, Math.floor(raw.attempt))
+        : 1;
+    return {
+      type: "clarification_required",
+      question: question.slice(0, 200),
+      attempt,
+    };
+  }
+
+  const breakdown = validateBreakdownJSON(content, sideCount);
+  return { type: "breakdown", ...breakdown };
 }
 
 async function callDeepSeekMedalDesign(

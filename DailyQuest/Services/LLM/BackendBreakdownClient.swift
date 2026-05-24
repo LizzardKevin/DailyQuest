@@ -8,7 +8,12 @@ struct BackendBreakdownClient: TaskBreakdownProviding {
         self.session = session
     }
 
-    func breakdown(mainTask: String, sideTasks: [String]) async throws -> TaskBreakdownResponse {
+    func breakdown(
+        mainTask: String,
+        sideTasks: [String],
+        clarificationAnswer: String?,
+        clarificationAttempt: Int
+    ) async throws -> BreakdownResult {
         guard APIConfig.isConfigured else {
             throw BreakdownValidationError.apiError(
                 "服务端地址未配置。请在 APIConfig.swift 填入 Worker 部署 URL。"
@@ -18,8 +23,12 @@ struct BackendBreakdownClient: TaskBreakdownProviding {
         var lastError: Error = BreakdownValidationError.invalidJSON
         for attempt in 0...maxRetries {
             do {
-                let response = try await request(mainTask: mainTask, sideTasks: sideTasks)
-                return try response.validated(expectedSideCount: sideTasks.count)
+                return try await request(
+                    mainTask: mainTask,
+                    sideTasks: sideTasks,
+                    clarificationAnswer: clarificationAnswer,
+                    clarificationAttempt: clarificationAttempt
+                )
             } catch let error as BreakdownValidationError {
                 switch error {
                 case .apiError, .sidesCountMismatch, .emptyMain, .emptySide:
@@ -63,7 +72,12 @@ struct BackendBreakdownClient: TaskBreakdownProviding {
         return error
     }
 
-    private func request(mainTask: String, sideTasks: [String]) async throws -> TaskBreakdownResponse {
+    private func request(
+        mainTask: String,
+        sideTasks: [String],
+        clarificationAnswer: String?,
+        clarificationAttempt: Int
+    ) async throws -> BreakdownResult {
         var request = URLRequest(url: APIConfig.breakdownURL)
         request.httpMethod = "POST"
         request.timeoutInterval = 35
@@ -76,10 +90,14 @@ struct BackendBreakdownClient: TaskBreakdownProviding {
             request.setValue(secret, forHTTPHeaderField: "X-API-Secret")
         }
 
-        let body: [String: Any] = [
+        var body: [String: Any] = [
             "mainTask": mainTask,
-            "sideTasks": sideTasks
+            "sideTasks": sideTasks,
+            "clarificationAttempt": clarificationAttempt
         ]
+        if let clarificationAnswer, !clarificationAnswer.isEmpty {
+            body["clarificationAnswer"] = clarificationAnswer
+        }
         request.httpBody = try JSONSerialization.data(withJSONObject: body)
 
         let (data, response) = try await session.data(for: request)
@@ -105,11 +123,56 @@ struct BackendBreakdownClient: TaskBreakdownProviding {
             throw BreakdownValidationError.apiError("服务暂时不可用，请稍后重试")
         }
 
+        return try parseEnvelope(data: data, expectedSideCount: sideTasks.count)
+    }
+
+    private func parseEnvelope(data: Data, expectedSideCount: Int) throws -> BreakdownResult {
+        if let envelope = try? JSONDecoder().decode(BreakdownEnvelopeDTO.self, from: data) {
+            switch envelope {
+            case .clarification(let question, let attempt):
+                return .needsClarification(
+                    BreakdownClarificationPrompt(question: question, attempt: attempt)
+                )
+            case .breakdown(let response):
+                let validated = try response.validated(expectedSideCount: expectedSideCount)
+                return .ready(validated)
+            }
+        }
+
         do {
-            return try JSONDecoder().decode(TaskBreakdownResponse.self, from: data)
+            let legacy = try JSONDecoder().decode(TaskBreakdownResponse.self, from: data)
+            let validated = try legacy.validated(expectedSideCount: expectedSideCount)
+            return .ready(validated)
         } catch {
             throw BreakdownValidationError.invalidJSON
         }
+    }
+}
+
+private enum BreakdownEnvelopeDTO: Decodable {
+    case breakdown(TaskBreakdownResponse)
+    case clarification(question: String, attempt: Int)
+
+    private enum CodingKeys: String, CodingKey {
+        case type, question, attempt, main, sides
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let type = try container.decodeIfPresent(String.self, forKey: .type) ?? "breakdown"
+
+        if type == "clarification_required" {
+            let question = try container.decode(String.self, forKey: .question)
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !question.isEmpty else {
+                throw BreakdownValidationError.invalidJSON
+            }
+            let attempt = try container.decodeIfPresent(Int.self, forKey: .attempt) ?? 1
+            self = .clarification(question: question, attempt: attempt)
+            return
+        }
+
+        self = .breakdown(try TaskBreakdownResponse(from: decoder))
     }
 }
 

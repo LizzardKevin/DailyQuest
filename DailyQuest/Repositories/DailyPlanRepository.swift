@@ -54,8 +54,8 @@ struct LocalDailyPlanRepository: DailyPlanRepository {
 
     @discardableResult
     func save(_ newPlan: DailyPlan, context: ModelContext) throws -> DailyPlan {
-        let day = DateHelpers.startOfDay(newPlan.date)
-        newPlan.date = day
+        // `DailyPlan.init` 已写入任务日锚点；再次 startOfDay 会在午夜锚点上回退一天。
+        let day = newPlan.date
         newPlan.updatedAt = .now
 
         guard newPlan.hasValidQuestContent else {

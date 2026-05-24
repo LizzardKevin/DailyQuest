@@ -1,7 +1,33 @@
 import Foundation
 
+struct BreakdownClarificationPrompt: Equatable {
+    let question: String
+    let attempt: Int
+}
+
+enum BreakdownResult: Equatable {
+    case ready(TaskBreakdownResponse)
+    case needsClarification(BreakdownClarificationPrompt)
+}
+
 protocol TaskBreakdownProviding {
-    func breakdown(mainTask: String, sideTasks: [String]) async throws -> TaskBreakdownResponse
+    func breakdown(
+        mainTask: String,
+        sideTasks: [String],
+        clarificationAnswer: String?,
+        clarificationAttempt: Int
+    ) async throws -> BreakdownResult
+}
+
+extension TaskBreakdownProviding {
+    func breakdown(mainTask: String, sideTasks: [String]) async throws -> BreakdownResult {
+        try await breakdown(
+            mainTask: mainTask,
+            sideTasks: sideTasks,
+            clarificationAnswer: nil,
+            clarificationAttempt: 0
+        )
+    }
 }
 
 struct TaskBreakdownResponse: Codable, Equatable {
