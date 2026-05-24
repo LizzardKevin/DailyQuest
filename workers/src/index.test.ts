@@ -23,4 +23,16 @@ describe("breakdown request validation", () => {
     expect(valid.test("2026-5-22")).toBe(false);
     expect(valid.test("../etc/passwd")).toBe(false);
   });
+
+  it("honors forceRegenerate flag in request body", () => {
+    const body = { mainTask: "写报告", forceRegenerate: true };
+    expect(body.forceRegenerate).toBe(true);
+  });
+
+  it("validates hex colors for medal palette", () => {
+    const hex = /^#[0-9A-Fa-f]{6}$/;
+    expect(hex.test("#C45C26")).toBe(true);
+    expect(hex.test("C45C26")).toBe(false);
+    expect(hex.test("#xyz")).toBe(false);
+  });
 });

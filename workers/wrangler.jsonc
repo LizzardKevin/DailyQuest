@@ -1,9 +1,10 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
-  "name": "daily-intent-api",
+  "name": "daily-quest-api",
   "main": "src/index.ts",
   "compatibility_date": "2025-05-20",
   "vars": {
-    "MAX_REQUESTS_PER_DAY": "3"
+    "MAX_REQUESTS_PER_DAY": "3",
+    "MAX_MEDAL_DESIGNS_PER_DAY": "2"
   }
 }

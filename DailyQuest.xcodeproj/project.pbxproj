@@ -1,0 +1,605 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		B10000000000000000000001 /* DailyQuestApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000001 /* DailyQuestApp.swift */; };
+		B10000000000000000000002 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000002 /* RootView.swift */; };
+		B10000000000000000000003 /* DayMedalStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000003 /* DayMedalStatus.swift */; };
+		B10000000000000000000004 /* TaskItemKind.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000004 /* TaskItemKind.swift */; };
+		B10000000000000000000005 /* DailyMedal.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000005 /* DailyMedal.swift */; };
+		B10000000000000000000006 /* TaskStage.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000006 /* TaskStage.swift */; };
+		B10000000000000000000007 /* TaskItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000007 /* TaskItem.swift */; };
+		B10000000000000000000008 /* DailyPlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000008 /* DailyPlan.swift */; };
+		B10000000000000000000009 /* DailyPlanRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000009 /* DailyPlanRepository.swift */; };
+		B10000000000000000000010 /* KeychainService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000010 /* KeychainService.swift */; };
+		B10000000000000000000011 /* MedalService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000011 /* MedalService.swift */; };
+		B10000000000000000000012 /* PlanBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000012 /* PlanBuilder.swift */; };
+		B10000000000000000000013 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000013 /* NotificationService.swift */; };
+		B10000000000000000000014 /* TaskBreakdownProviding.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000014 /* TaskBreakdownProviding.swift */; };
+		B10000000000000000000016 /* MedalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000016 /* MedalView.swift */; };
+		B10000000000000000000017 /* CelebrateMedalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000017 /* CelebrateMedalView.swift */; };
+		B10000000000000000000018 /* DateHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000018 /* DateHelpers.swift */; };
+		B10000000000000000000019 /* PreviewData.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000019 /* PreviewData.swift */; };
+		B10000000000000000000020 /* TodayTabRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000020 /* TodayTabRootView.swift */; };
+		B10000000000000000000021 /* TodayBoardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000021 /* TodayBoardView.swift */; };
+		B10000000000000000000030 /* APIConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000031 /* APIConfig.swift */; };
+		B10000000000000000000031 /* AppTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000032 /* AppTheme.swift */; };
+		B10000000000000000000032 /* BackendBreakdownClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000033 /* BackendBreakdownClient.swift */; };
+		B10000000000000000000033 /* DeviceIDService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000034 /* DeviceIDService.swift */; };
+		B10000000000000000000025 /* CalendarViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000025 /* CalendarViewModel.swift */; };
+		B10000000000000000000026 /* MedalCalendarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000026 /* MedalCalendarView.swift */; };
+		B10000000000000000000027 /* DayDetailSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000027 /* DayDetailSheet.swift */; };
+		B10000000000000000000028 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000028 /* SettingsView.swift */; };
+		B10000000000000000000029 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000029 /* Assets.xcassets */; };
+		B10000000000000000000035 /* QuestDayCalendar.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000035 /* QuestDayCalendar.swift */; };
+		B10000000000000000000036 /* AppNotifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000036 /* AppNotifications.swift */; };
+		B10000000000000000000037 /* ReminderSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000037 /* ReminderSettings.swift */; };
+		B10000000000000000000038 /* LightPromptStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000038 /* LightPromptStore.swift */; };
+		B10000000000000000000039 /* OnThisDayService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000039 /* OnThisDayService.swift */; };
+		B10000000000000000000040 /* StageProgressBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000040 /* StageProgressBar.swift */; };
+		B10000000000000000000041 /* LightPromptBanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000041 /* LightPromptBanner.swift */; };
+		B10000000000000000000042 /* DailyTriviaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000042 /* DailyTriviaView.swift */; };
+		B10000000000000000000043 /* QuestIntakeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000043 /* QuestIntakeView.swift */; };
+		B10000000000000000000044 /* DailyFlowPager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000044 /* DailyFlowPager.swift */; };
+		B10000000000000000000048 /* DailyQuestInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000048 /* DailyQuestInputView.swift */; };
+		B10000000000000000000045 /* TutorialContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000045 /* TutorialContent.swift */; };
+		B10000000000000000000046 /* SettingsTodayQuestSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000046 /* SettingsTodayQuestSection.swift */; };
+		B10000000000000000000047 /* on_this_day_fallback.json in Resources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000047 /* on_this_day_fallback.json */; };
+		B10000000000000000000049 /* MedalDesign.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000049 /* MedalDesign.swift */; };
+		B10000000000000000000050 /* MedalDesignProviding.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000050 /* MedalDesignProviding.swift */; };
+		B10000000000000000000051 /* FeatureModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000051 /* FeatureModule.swift */; };
+		B10000000000000000000052 /* SyncDailyPlanRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000052 /* SyncDailyPlanRepository.swift */; };
+		B10000000000000000000053 /* FallbackMedalDesignProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000053 /* FallbackMedalDesignProvider.swift */; };
+		B10000000000000000000054 /* MedalDesignService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000054 /* MedalDesignService.swift */; };
+		B10000000000000000000055 /* BackendMedalDesignClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000055 /* BackendMedalDesignClient.swift */; };
+		B10000000000000000000056 /* PlanBuilder+Debug.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000056 /* PlanBuilder+Debug.swift */; };
+		B10000000000000000000057 /* RemoteAssetRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000057 /* RemoteAssetRenderer.swift */; };
+		B10000000000000000000058 /* ThemePalette.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000058 /* ThemePalette.swift */; };
+		B10000000000000000000059 /* AppearanceSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000059 /* AppearanceSettings.swift */; };
+		B10000000000000000000060 /* AppearanceSettingsSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000060 /* AppearanceSettingsSection.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		E10000000000000000000001 /* DailyQuest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DailyQuest.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		F10000000000000000000001 /* DailyQuestApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyQuestApp.swift; sourceTree = "<group>"; };
+		F10000000000000000000002 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
+		F10000000000000000000003 /* DayMedalStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DayMedalStatus.swift; sourceTree = "<group>"; };
+		F10000000000000000000004 /* TaskItemKind.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskItemKind.swift; sourceTree = "<group>"; };
+		F10000000000000000000005 /* DailyMedal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyMedal.swift; sourceTree = "<group>"; };
+		F10000000000000000000006 /* TaskStage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskStage.swift; sourceTree = "<group>"; };
+		F10000000000000000000007 /* TaskItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskItem.swift; sourceTree = "<group>"; };
+		F10000000000000000000008 /* DailyPlan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyPlan.swift; sourceTree = "<group>"; };
+		F10000000000000000000009 /* DailyPlanRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyPlanRepository.swift; sourceTree = "<group>"; };
+		F10000000000000000000010 /* KeychainService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainService.swift; sourceTree = "<group>"; };
+		F10000000000000000000011 /* MedalService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MedalService.swift; sourceTree = "<group>"; };
+		F10000000000000000000012 /* PlanBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanBuilder.swift; sourceTree = "<group>"; };
+		F10000000000000000000013 /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
+		F10000000000000000000014 /* TaskBreakdownProviding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskBreakdownProviding.swift; sourceTree = "<group>"; };
+		F10000000000000000000016 /* MedalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MedalView.swift; sourceTree = "<group>"; };
+		F10000000000000000000017 /* CelebrateMedalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CelebrateMedalView.swift; sourceTree = "<group>"; };
+		F10000000000000000000018 /* DateHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateHelpers.swift; sourceTree = "<group>"; };
+		F10000000000000000000019 /* PreviewData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewData.swift; sourceTree = "<group>"; };
+		F10000000000000000000020 /* TodayTabRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayTabRootView.swift; sourceTree = "<group>"; };
+		F10000000000000000000021 /* TodayBoardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayBoardView.swift; sourceTree = "<group>"; };
+		F10000000000000000000031 /* APIConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIConfig.swift; sourceTree = "<group>"; };
+		F10000000000000000000032 /* AppTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTheme.swift; sourceTree = "<group>"; };
+		F10000000000000000000033 /* BackendBreakdownClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackendBreakdownClient.swift; sourceTree = "<group>"; };
+		F10000000000000000000034 /* DeviceIDService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceIDService.swift; sourceTree = "<group>"; };
+		F10000000000000000000025 /* CalendarViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarViewModel.swift; sourceTree = "<group>"; };
+		F10000000000000000000026 /* MedalCalendarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MedalCalendarView.swift; sourceTree = "<group>"; };
+		F10000000000000000000027 /* DayDetailSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DayDetailSheet.swift; sourceTree = "<group>"; };
+		F10000000000000000000028 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		F10000000000000000000029 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		F10000000000000000000030 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		F10000000000000000000035 /* QuestDayCalendar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuestDayCalendar.swift; sourceTree = "<group>"; };
+		F10000000000000000000036 /* AppNotifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppNotifications.swift; sourceTree = "<group>"; };
+		F10000000000000000000037 /* ReminderSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReminderSettings.swift; sourceTree = "<group>"; };
+		F10000000000000000000038 /* LightPromptStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LightPromptStore.swift; sourceTree = "<group>"; };
+		F10000000000000000000039 /* OnThisDayService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnThisDayService.swift; sourceTree = "<group>"; };
+		F10000000000000000000040 /* StageProgressBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StageProgressBar.swift; sourceTree = "<group>"; };
+		F10000000000000000000041 /* LightPromptBanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LightPromptBanner.swift; sourceTree = "<group>"; };
+		F10000000000000000000042 /* DailyTriviaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyTriviaView.swift; sourceTree = "<group>"; };
+		F10000000000000000000043 /* QuestIntakeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuestIntakeView.swift; sourceTree = "<group>"; };
+		F10000000000000000000044 /* DailyFlowPager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyFlowPager.swift; sourceTree = "<group>"; };
+		F10000000000000000000048 /* DailyQuestInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyQuestInputView.swift; sourceTree = "<group>"; };
+		F10000000000000000000045 /* TutorialContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TutorialContent.swift; sourceTree = "<group>"; };
+		F10000000000000000000046 /* SettingsTodayQuestSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsTodayQuestSection.swift; sourceTree = "<group>"; };
+		F10000000000000000000047 /* on_this_day_fallback.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = on_this_day_fallback.json; sourceTree = "<group>"; };
+		F10000000000000000000049 /* MedalDesign.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MedalDesign.swift; sourceTree = "<group>"; };
+		F10000000000000000000050 /* MedalDesignProviding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MedalDesignProviding.swift; sourceTree = "<group>"; };
+		F10000000000000000000051 /* FeatureModule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureModule.swift; sourceTree = "<group>"; };
+		F10000000000000000000052 /* SyncDailyPlanRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncDailyPlanRepository.swift; sourceTree = "<group>"; };
+		F10000000000000000000053 /* FallbackMedalDesignProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FallbackMedalDesignProvider.swift; sourceTree = "<group>"; };
+		F10000000000000000000054 /* MedalDesignService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MedalDesignService.swift; sourceTree = "<group>"; };
+		F10000000000000000000055 /* BackendMedalDesignClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackendMedalDesignClient.swift; sourceTree = "<group>"; };
+		F10000000000000000000056 /* PlanBuilder+Debug.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PlanBuilder+Debug.swift"; sourceTree = "<group>"; };
+		F10000000000000000000057 /* RemoteAssetRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteAssetRenderer.swift; sourceTree = "<group>"; };
+		F10000000000000000000058 /* ThemePalette.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemePalette.swift; sourceTree = "<group>"; };
+		F10000000000000000000059 /* AppearanceSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppearanceSettings.swift; sourceTree = "<group>"; };
+		F10000000000000000000060 /* AppearanceSettingsSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppearanceSettingsSection.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		C10000000000000000000002 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		G10000000000000000000001 = {
+			isa = PBXGroup;
+			children = (
+				G10000000000000000000002 /* DailyQuest */,
+				G10000000000000000000003 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		G10000000000000000000002 /* DailyQuest */ = {
+			isa = PBXGroup;
+			children = (
+				F10000000000000000000001 /* DailyQuestApp.swift */,
+				G10000000000000000000004 /* App */,
+				G10000000000000000000020 /* Domain */,
+				G10000000000000000000022 /* MedalKit */,
+				G10000000000000000000005 /* Models */,
+				G10000000000000000000006 /* Repositories */,
+				G10000000000000000000007 /* Services */,
+				G10000000000000000000008 /* Design */,
+				G10000000000000000000009 /* Features */,
+				G10000000000000000000010 /* Utilities */,
+				G10000000000000000000021 /* Resources */,
+				G10000000000000000000017 /* Config */,
+				F10000000000000000000029 /* Assets.xcassets */,
+				F10000000000000000000030 /* Info.plist */,
+			);
+			path = DailyQuest;
+			sourceTree = "<group>";
+		};
+		G10000000000000000000003 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				E10000000000000000000001 /* DailyQuest.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		G10000000000000000000004 /* App */ = {
+			isa = PBXGroup;
+			children = ( F10000000000000000000002 /* RootView.swift */ );
+			path = App;
+			sourceTree = "<group>";
+		};
+		G10000000000000000000005 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				F10000000000000000000003 /* DayMedalStatus.swift */,
+				F10000000000000000000004 /* TaskItemKind.swift */,
+				F10000000000000000000005 /* DailyMedal.swift */,
+				F10000000000000000000006 /* TaskStage.swift */,
+				F10000000000000000000007 /* TaskItem.swift */,
+				F10000000000000000000008 /* DailyPlan.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		G10000000000000000000006 /* Repositories */ = {
+			isa = PBXGroup;
+			children = ( F10000000000000000000009 /* DailyPlanRepository.swift */ );
+			path = Repositories;
+			sourceTree = "<group>";
+		};
+		G10000000000000000000007 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				G10000000000000000000011 /* LLM */,
+				G10000000000000000000023 /* Medal */,
+				F10000000000000000000034 /* DeviceIDService.swift */,
+				F10000000000000000000010 /* KeychainService.swift */,
+				F10000000000000000000011 /* MedalService.swift */,
+				F10000000000000000000012 /* PlanBuilder.swift */,
+				F10000000000000000000056 /* PlanBuilder+Debug.swift */,
+				F10000000000000000000013 /* NotificationService.swift */,
+				F10000000000000000000037 /* ReminderSettings.swift */,
+				F10000000000000000000038 /* LightPromptStore.swift */,
+				F10000000000000000000039 /* OnThisDayService.swift */,
+				F10000000000000000000059 /* AppearanceSettings.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		G10000000000000000000011 /* LLM */ = {
+			isa = PBXGroup;
+			children = (
+				F10000000000000000000014 /* TaskBreakdownProviding.swift */,
+				F10000000000000000000033 /* BackendBreakdownClient.swift */,
+				F10000000000000000000055 /* BackendMedalDesignClient.swift */,
+			);
+			path = LLM;
+			sourceTree = "<group>";
+		};
+		G10000000000000000000020 /* Domain */ = {
+			isa = PBXGroup;
+			children = (
+				G10000000000000000000024 /* Medal */,
+				F10000000000000000000051 /* FeatureModule.swift */,
+				F10000000000000000000052 /* SyncDailyPlanRepository.swift */,
+			);
+			path = Domain;
+			sourceTree = "<group>";
+		};
+		G10000000000000000000022 /* MedalKit */ = {
+			isa = PBXGroup;
+			children = (
+				F10000000000000000000057 /* RemoteAssetRenderer.swift */,
+			);
+			path = MedalKit;
+			sourceTree = "<group>";
+		};
+		G10000000000000000000023 /* Medal */ = {
+			isa = PBXGroup;
+			children = (
+				F10000000000000000000053 /* FallbackMedalDesignProvider.swift */,
+				F10000000000000000000054 /* MedalDesignService.swift */,
+			);
+			path = Medal;
+			sourceTree = "<group>";
+		};
+		G10000000000000000000024 /* Medal */ = {
+			isa = PBXGroup;
+			children = (
+				F10000000000000000000049 /* MedalDesign.swift */,
+				F10000000000000000000050 /* MedalDesignProviding.swift */,
+			);
+			path = Medal;
+			sourceTree = "<group>";
+		};
+		G10000000000000000000008 /* Design */ = {
+			isa = PBXGroup;
+			children = (
+				F10000000000000000000032 /* AppTheme.swift */,
+				F10000000000000000000058 /* ThemePalette.swift */,
+				F10000000000000000000016 /* MedalView.swift */,
+				F10000000000000000000017 /* CelebrateMedalView.swift */,
+				F10000000000000000000040 /* StageProgressBar.swift */,
+				F10000000000000000000041 /* LightPromptBanner.swift */,
+			);
+			path = Design;
+			sourceTree = "<group>";
+		};
+		G10000000000000000000017 /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				F10000000000000000000031 /* APIConfig.swift */,
+			);
+			path = Config;
+			sourceTree = "<group>";
+		};
+		G10000000000000000000009 /* Features */ = {
+			isa = PBXGroup;
+			children = (
+				G10000000000000000000012 /* Today */,
+				G10000000000000000000018 /* Daily */,
+				G10000000000000000000019 /* Tutorial */,
+				G10000000000000000000015 /* Calendar */,
+				G10000000000000000000016 /* Settings */,
+			);
+			path = Features;
+			sourceTree = "<group>";
+		};
+		G10000000000000000000010 /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				F10000000000000000000018 /* DateHelpers.swift */,
+				F10000000000000000000019 /* PreviewData.swift */,
+				F10000000000000000000035 /* QuestDayCalendar.swift */,
+				F10000000000000000000036 /* AppNotifications.swift */,
+			);
+			path = Utilities;
+			sourceTree = "<group>";
+		};
+		G10000000000000000000012 /* Today */ = {
+			isa = PBXGroup;
+			children = (
+				F10000000000000000000020 /* TodayTabRootView.swift */,
+				F10000000000000000000021 /* TodayBoardView.swift */,
+			);
+			path = Today;
+			sourceTree = "<group>";
+		};
+		G10000000000000000000018 /* Daily */ = {
+			isa = PBXGroup;
+			children = (
+				F10000000000000000000042 /* DailyTriviaView.swift */,
+				F10000000000000000000043 /* QuestIntakeView.swift */,
+				F10000000000000000000044 /* DailyFlowPager.swift */,
+				F10000000000000000000048 /* DailyQuestInputView.swift */,
+			);
+			path = Daily;
+			sourceTree = "<group>";
+		};
+		G10000000000000000000019 /* Tutorial */ = {
+			isa = PBXGroup;
+			children = ( F10000000000000000000045 /* TutorialContent.swift */ );
+			path = Tutorial;
+			sourceTree = "<group>";
+		};
+		G10000000000000000000021 /* Resources */ = {
+			isa = PBXGroup;
+			children = ( F10000000000000000000047 /* on_this_day_fallback.json */ );
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		G10000000000000000000015 /* Calendar */ = {
+			isa = PBXGroup;
+			children = (
+				F10000000000000000000025 /* CalendarViewModel.swift */,
+				F10000000000000000000026 /* MedalCalendarView.swift */,
+				F10000000000000000000027 /* DayDetailSheet.swift */,
+			);
+			path = Calendar;
+			sourceTree = "<group>";
+		};
+		G10000000000000000000016 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				F10000000000000000000028 /* SettingsView.swift */,
+				F10000000000000000000046 /* SettingsTodayQuestSection.swift */,
+				F10000000000000000000060 /* AppearanceSettingsSection.swift */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		T10000000000000000000001 /* DailyQuest */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = X10000000000000000000003 /* Build configuration list for PBXNativeTarget "DailyQuest" */;
+			buildPhases = (
+				C10000000000000000000001 /* Sources */,
+				C10000000000000000000002 /* Frameworks */,
+				C10000000000000000000003 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = DailyQuest;
+			productName = DailyQuest;
+			productReference = E10000000000000000000001 /* DailyQuest.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		P10000000000000000000001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1500;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					T10000000000000000000001 = {
+						CreatedOnToolsVersion = 15.0;
+					};
+				};
+			};
+			buildConfigurationList = X10000000000000000000001 /* Build configuration list for PBXProject "DailyQuest" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = zh-Hans;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				zh-Hans,
+				Base,
+			);
+			mainGroup = G10000000000000000000001;
+			productRefGroup = G10000000000000000000003 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				T10000000000000000000001 /* DailyQuest */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		C10000000000000000000003 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B10000000000000000000029 /* Assets.xcassets in Resources */,
+				B10000000000000000000047 /* on_this_day_fallback.json in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		C10000000000000000000001 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B10000000000000000000001 /* DailyQuestApp.swift in Sources */,
+				B10000000000000000000002 /* RootView.swift in Sources */,
+				B10000000000000000000003 /* DayMedalStatus.swift in Sources */,
+				B10000000000000000000004 /* TaskItemKind.swift in Sources */,
+				B10000000000000000000005 /* DailyMedal.swift in Sources */,
+				B10000000000000000000006 /* TaskStage.swift in Sources */,
+				B10000000000000000000007 /* TaskItem.swift in Sources */,
+				B10000000000000000000008 /* DailyPlan.swift in Sources */,
+				B10000000000000000000009 /* DailyPlanRepository.swift in Sources */,
+				B10000000000000000000010 /* KeychainService.swift in Sources */,
+				B10000000000000000000011 /* MedalService.swift in Sources */,
+				B10000000000000000000012 /* PlanBuilder.swift in Sources */,
+				B10000000000000000000013 /* NotificationService.swift in Sources */,
+				B10000000000000000000014 /* TaskBreakdownProviding.swift in Sources */,
+				B10000000000000000000016 /* MedalView.swift in Sources */,
+				B10000000000000000000017 /* CelebrateMedalView.swift in Sources */,
+				B10000000000000000000018 /* DateHelpers.swift in Sources */,
+				B10000000000000000000019 /* PreviewData.swift in Sources */,
+				B10000000000000000000020 /* TodayTabRootView.swift in Sources */,
+				B10000000000000000000021 /* TodayBoardView.swift in Sources */,
+				B10000000000000000000030 /* APIConfig.swift in Sources */,
+				B10000000000000000000031 /* AppTheme.swift in Sources */,
+				B10000000000000000000032 /* BackendBreakdownClient.swift in Sources */,
+				B10000000000000000000033 /* DeviceIDService.swift in Sources */,
+				B10000000000000000000025 /* CalendarViewModel.swift in Sources */,
+				B10000000000000000000026 /* MedalCalendarView.swift in Sources */,
+				B10000000000000000000027 /* DayDetailSheet.swift in Sources */,
+				B10000000000000000000028 /* SettingsView.swift in Sources */,
+				B10000000000000000000035 /* QuestDayCalendar.swift in Sources */,
+				B10000000000000000000036 /* AppNotifications.swift in Sources */,
+				B10000000000000000000037 /* ReminderSettings.swift in Sources */,
+				B10000000000000000000038 /* LightPromptStore.swift in Sources */,
+				B10000000000000000000039 /* OnThisDayService.swift in Sources */,
+				B10000000000000000000040 /* StageProgressBar.swift in Sources */,
+				B10000000000000000000041 /* LightPromptBanner.swift in Sources */,
+				B10000000000000000000042 /* DailyTriviaView.swift in Sources */,
+				B10000000000000000000043 /* QuestIntakeView.swift in Sources */,
+				B10000000000000000000044 /* DailyFlowPager.swift in Sources */,
+				B10000000000000000000048 /* DailyQuestInputView.swift in Sources */,
+				B10000000000000000000045 /* TutorialContent.swift in Sources */,
+				B10000000000000000000046 /* SettingsTodayQuestSection.swift in Sources */,
+				B10000000000000000000049 /* MedalDesign.swift in Sources */,
+				B10000000000000000000050 /* MedalDesignProviding.swift in Sources */,
+				B10000000000000000000051 /* FeatureModule.swift in Sources */,
+				B10000000000000000000052 /* SyncDailyPlanRepository.swift in Sources */,
+				B10000000000000000000053 /* FallbackMedalDesignProvider.swift in Sources */,
+				B10000000000000000000054 /* MedalDesignService.swift in Sources */,
+				B10000000000000000000055 /* BackendMedalDesignClient.swift in Sources */,
+				B10000000000000000000056 /* PlanBuilder+Debug.swift in Sources */,
+				B10000000000000000000057 /* RemoteAssetRenderer.swift in Sources */,
+				B10000000000000000000058 /* ThemePalette.swift in Sources */,
+				B10000000000000000000059 /* AppearanceSettings.swift in Sources */,
+				B10000000000000000000060 /* AppearanceSettingsSection.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		X10000000000000000000004 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		X10000000000000000000005 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		X10000000000000000000006 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = DailyQuest/Info.plist;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.dailyquest.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		X10000000000000000000007 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = DailyQuest/Info.plist;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.dailyquest.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		X10000000000000000000001 /* Build configuration list for PBXProject "DailyQuest" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				X10000000000000000000004 /* Debug */,
+				X10000000000000000000005 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		X10000000000000000000003 /* Build configuration list for PBXNativeTarget "DailyQuest" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				X10000000000000000000006 /* Debug */,
+				X10000000000000000000007 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = P10000000000000000000001 /* Project object */;
+}
+

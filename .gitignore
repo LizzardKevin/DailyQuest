@@ -6,7 +6,7 @@ xcuserdata/
 *.xccheckout
 
 # Secrets
-DailyIntent/Config/Config.xcconfig
+DailyQuest/Config/Config.xcconfig
 *.env
 workers/.dev.vars
 workers/node_modules/
